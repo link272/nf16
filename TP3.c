@@ -120,8 +120,9 @@ T_Produit *chercherProduit(T_Rayon *rayon, char *marque){
 				return produit;
 			}
 			produit = produit -> suivant;
-		}
 	}
+	return NULL;
+}
 
 //Ajout d'un produit dans un rayon
 int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
@@ -290,7 +291,7 @@ T_Rayon *creerRayon(char *nom){
 	return rayon;
 }
 
-//Ajout d'un rayon dans un magasin sans tri
+//Ajout d'un rayon dans un magasin avec tri
 int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon){
 	T_Rayon *actuel=magasin->premier;
 	//Si le magasin est vide on ajoute directe
