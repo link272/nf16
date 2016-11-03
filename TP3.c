@@ -230,22 +230,41 @@ T_Rayon *creerRayon(char *nom){
 	return rayon;
 }
 
-//Ajout d'un rayon dans un magasin sans tri
+//Ajout d'un rayon dans un magasin avec tri
 int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon){
 	T_Rayon *actuel=magasin->premier;
+	//Si le magasin est vide on ajoute directe
 	if(magasin->premier == NULL){
 		magasin->premier = rayon;
+		return 1;
 	}
 	else{
-		while(actuel -> suivant != NULL){
-				actuel = actuel -> suivant;
+		//Sinon on regarde où il faut mettre le rayon
+
+		if (strCompareAlpha(rayon->nom_rayon,actuel->nom_rayon)==-1){
+			rayon->suivant=actuel;
+			magasin->premier=rayon;
+			return 1;
+		}
+
+		while(actuel->suivant!=NULL){
+			//si on est au "milieu"
+			if (strCompareAlpha(rayon->nom_rayon,actuel->nom_rayon)==-1 && strCompareAlpha(rayon->nom_rayon,(actuel->suivant)->nom_rayon)==1){
+				rayon->suivant=actuel->suivant;
+				actuel->suivant=rayon;
+				return 1;
+			}
+			actuel = actuel -> suivant;
 		}
 		actuel -> suivant = rayon;
+		rayon->suivant = NULL;
+		return 1;
 	}
-
+	return 0;
 }
 	//renvoie 1 si l'ajout s'est bien passé, 0 sinon; l'ajout se fait en respectant le tri par ordre alphabétique sur le nom du
 	//rayon; on ne doit pas autoriser l'utilisateur à ajouter deux fois le même rayon
+
 
 //Affichage de tous les produits d'un rayon
 void afficherRayon(T_Rayon *rayon){
