@@ -150,7 +150,7 @@ void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max){
 		}
 		rayon = rayon->suivant;
 	}
-	print("debug1")
+	print("debug1");
 	trierRequete(sentinelle);
 	afficherRequete(sentinelle);
 }
