@@ -18,24 +18,44 @@ char* verifierNom(char* nom,char type){
 	return nom;
 }
 
-int alphaTri(char *var, char *comparatif){
-	//verifier la longeur
-	int res = 0, i = 0;
-	while(res ==0){
-		if (var[i] == comparatif[i]){
-			i +=1;
-		}
-		else{
-			if(var[i] << comparatif[i])
-				res = 1;
-			else{
-				res = 2;
-			}
-		}
+int strCompareAlpha(char* str1,char *str2){
+	//retourne -1 si str1 est avant str2; 0 si les deux sont égaux; 1 sinon
 
+	if (strcmp(str1,str2)==0) return 0;
+
+	
+	int dist='a'-'A';
+
+	char c1,c2;
+
+	int i;
+	int n,pluspetit;
+	if (strlen(str1)<strlen(str2)){
+		n=strlen(str1);pluspetit=1;
+	} 
+	else {
+		n=strlen(str2);pluspetit=2;
 	}
-	return res;
+
+	for (i = 0; i < n; ++i)
+	{
+		c1=*(str1+i);
+		c2=*(str2+i);
+
+		//si c'est des lettes on passe en majuscule.
+
+		if (c1>='a' && c1<='z') c1=c1-dist;
+		if (c2>='a' && c2<='z') c2=c2-dist;
+
+		//
+		if (c1<c2) return -1;
+	}
+
+	//Si tous le début est pareil on fait un dernier test
+	if (pluspetit==1) return -1;
+	else return 1;
 }
+
 
 void viderBuffer()
 {
