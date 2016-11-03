@@ -84,6 +84,7 @@ int strCompareAlpha(char* str1,char *str2){
 
 		//
 		if (c1<c2) return -1;
+		if (c2<c1) return 1;
 	}
 
 	//Si tous le début est pareil on fait un dernier test
