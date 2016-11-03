@@ -18,6 +18,21 @@ char* verifierNom(char* nom,char type){
 	return nom;
 }
 
+
+//Supprimer une fois dans tp3.h
+T_Produit *chercherProduit(T_Rayon *rayon, char *marque);
+//
+
+void verifierMarqueProduit(T_Rayon* rayon,char* marque){
+	while(chercherProduit(rayon,marque)!=NULL){
+		printf("La marque que vous avez tappée existe déjà dans ce rayon, merci de tapper une autre marque\n");
+		printf("Entrer la marque du produit à ajouter\n");
+    	scanf("%s", marque);
+    	viderBuffer();
+    	verifierNom(marque,'M');
+	}
+}
+
 //Fonction pour vérifer la saisie de qualité.
 void checkQualite(char* q){
 	int test=0;
@@ -474,16 +489,22 @@ void ajouterRayonWrapper(T_Magasin *magasin){
     ajouterRayon(magasin, creerRayon(nom));
     printf("le rayon %s est ajouté au magasin %s\n", nom, magasin -> nom);
 }
+
+
 void ajouterProduitWrapper(T_Magasin *magasin){
 	char marque[tailleNomMagasin], qualite;
 	float prix;
 	int quantite_en_stock;
 	T_Produit *produit;
 	T_Rayon *rayon;
+	//on commence par choisir le rayon pour pouvoir vérifier que la marque n'est pas déjà présente
+	rayon = selectionnerRayon(magasin);
+
     printf("Entrer la marque du produit à ajouter\n");
     scanf("%s", marque);
     viderBuffer();
     verifierNom(marque,'M');
+	verifierMarqueProduit(rayon,marque);
 
     printf("Entrer la qualité du produit à ajouter (A, B ou C)\n");
     scanf("%c", &qualite);
@@ -497,7 +518,7 @@ void ajouterProduitWrapper(T_Magasin *magasin){
     viderBuffer();
     
     produit = creerProduit(marque, prix, qualite, quantite_en_stock);
-    rayon = selectionnerRayon(magasin);
+    
     ajouterProduit(rayon, produit);
 }
 
