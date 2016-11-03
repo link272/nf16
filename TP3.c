@@ -47,6 +47,7 @@ T_Produit *creerProduit(char *marque, float prix, char qualite, int quantite){
 	NouveauProduit->prix=prix;
 	NouveauProduit->qualite=qualite;
 	NouveauProduit->quantite_en_stock=quantite;
+	NouveauProduit->suivant=NULL;
 
 	return NouveauProduit;
 }
@@ -72,7 +73,7 @@ int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
 			actuel = actuel -> suivant;
 		}
 	precedent -> suivant = produit;
-	}
+	
 	rayon->nombre_produits += 1;
 }
 
