@@ -319,18 +319,26 @@ void afficherRayon(T_Rayon *rayon){
 T_Rayon *selectionnerRayon(T_Magasin *magasin){
 	afficherMagasin(magasin);
 	T_Rayon *actuel;
-	char nom[tailleNomMagasin];
-    printf("Entrez un nom de rayon\n");
-    scanf("%s", nom);
-    actuel = magasin->premier;
-    while(actuel != NULL){
-    	if(strcmp(actuel->nom_rayon,nom)==0){
-        	return actuel;
-    	}
-    	else{
-    		actuel = actuel -> suivant;
-    	}
-    }
+	char nom[tailleNomRayon];
+
+	int test=0; //On verifie l'existence du rayon rentré
+	while (test==0){
+		printf("Entrez un nom de rayon\n");
+	    scanf("%s",nom);
+	    viderBuffer();
+
+	    actuel = magasin->premier;
+	    while (actuel!= NULL){
+	    	if(strcmp(actuel->nom_rayon,nom)==0){
+	        return actuel;
+	    	}
+	    	actuel=actuel->suivant;
+	    }
+	    printf("Il n'existe aucun rayon de ce nom dans le magasin %s.\n \n",magasin->nom);
+	    printf("Pour rappel voici la liste des rayons du magasin %s.\n",magasin->nom);
+	    afficherMagasin(magasin);
+	}
+    
 }
 
 //Suppression d'un rayon et de tous les produits qu'il contient
