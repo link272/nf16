@@ -455,7 +455,6 @@ void ajouterRayonWrapper(T_Magasin *magasin){
     ajouterRayon(magasin, creerRayon(nom));
     printf("le rayon %s est ajouté au magasin %s\n", nom, magasin -> nom);
 }
-
 void ajouterProduitWrapper(T_Magasin *magasin){
 	char marque[tailleNomMagasin], qualite;
 	float prix;
@@ -465,16 +464,19 @@ void ajouterProduitWrapper(T_Magasin *magasin){
     printf("Entrer la marque du produit à ajouter\n");
     scanf("%s", marque);
     viderBuffer();
-    printf("Entrer la qualité du produit à ajouter\n");
+    verifierNom(marque,'M');
+
+    printf("Entrer la qualité du produit à ajouter (A, B ou C)\n");
     scanf("%c", &qualite);
-    viderBuffer();
+    checkQualite(&qualite);
+
    	printf("Entrer le prix du produit à ajouter\n");
     scanf("%f", &prix);
     viderBuffer();
    	printf("Entrer la quantite du produit à ajouter\n");
     scanf("%d", &quantite_en_stock);
     viderBuffer();
-    verifierNom(marque,'M');
+    
     produit = creerProduit(marque, prix, qualite, quantite_en_stock);
     rayon = selectionnerRayon(magasin);
     ajouterProduit(rayon, produit);
