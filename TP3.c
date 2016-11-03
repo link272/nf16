@@ -109,8 +109,9 @@ T_Produit *chercherProduit(T_Rayon *rayon, char *marque){
 				return produit;
 			}
 			produit = produit -> suivant;
-		}
 	}
+	return NULL;
+}
 
 //Ajout d'un produit dans un rayon
 int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
