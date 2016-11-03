@@ -18,6 +18,26 @@ char* verifierNom(char* nom,char type){
 	return nom;
 }
 
+//Fonction pour vérifer la saisie de qualité.
+void checkQualite(char* q){
+	int test=0;
+	if (*q=='A') test++;
+	if (*q=='B') test++;
+	if (*q=='C') test++;
+
+	while(test==0){
+		viderBuffer();
+		printf("La lettre saisie n'a pas étée reconnue.\n");
+		printf("Merci de saisir comme qualité la lettre A, B ou C.\n");
+		scanf("%c",q);
+		
+		test =0;
+		if (*q=='A') test++;
+		if (*q=='B') test++;
+		if (*q=='C') test++;
+	}
+}
+
 int strCompareAlpha(char* str1,char *str2){
 	//retourne -1 si str1 est avant str2; 0 si les deux sont égaux; 1 sinon
 
