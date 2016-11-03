@@ -115,17 +115,35 @@ T_Produit *chercherProduit(T_Rayon *rayon, char *marque){
 //Ajout d'un produit dans un rayon
 int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
 	T_Produit *actuel = rayon -> premier;
+	//si le rayon est vide on ajoute notre produit directement
 	if(rayon -> premier == NULL){
 		rayon -> premier = produit;
+		rayon->nombre_produits += 1;
+		return 1;
 	}
+	//Sinon on regarde où on le place
 	else{
-		while(actuel != NULL){
+		if (produit->prix<=actuel->prix){
+			produit->suivant=actuel;
+			rayon->premier=produit;
+			rayon->nombre_produits += 1;
+			return 1;
+		}
+		while(actuel->suivant != NULL){
+			if ( (actuel->prix <= produit->prix) && ( (actuel->suivant)->prix >= produit->prix) ){
+				produit->suivant=actuel->suivant;
+				actuel->suivant=produit;
+				rayon->nombre_produits += 1;
+				return 1;
+			}
 			actuel = actuel -> suivant;
 		}
-		actuel = produit;
+
+		actuel->suivant = produit;
+		produit->suivant = NULL;
+		return 1;
 	}
-	rayon->nombre_produits += 1;
-	return 1;
+	return 0;	
 }
 
 
