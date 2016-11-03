@@ -97,6 +97,8 @@ void fusionnerRayons(T_Magasin *magasin);
 //Pour vérifier que la longueur des noms rentrés est la bonne
 char* verifierNom(char* nom,char type);
 
+//Pour la comparaison alphabétique de string
+int strCompareAlpha(char* str1,char *str2);
 
 T_Requete *creerRequete(T_Produit *produit, T_Rayon *rayon);
 void afficherRequete(T_Requete *sentinelle);
