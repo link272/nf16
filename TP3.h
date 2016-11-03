@@ -101,3 +101,4 @@ char* verifierNom(char* nom,char type);
 T_Requete *creerRequete(T_Produit *produit, T_Rayon *rayon);
 void afficherRequete(T_Requete *sentinelle);
 void trierRequete(T_Requete *sentinelle);
+void viderBuffer();

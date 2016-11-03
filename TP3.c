@@ -12,6 +12,7 @@ char* verifierNom(char* nom,char type){
 	while (strlen(nom)>taille){
 		printf("Nous sommes désolé, le nom rentré est trop long, merci d'en taper d'une longueur inférieur à %d caractères.\n",taille);
 		scanf("%s",nom);
+		viderBuffer();
 	}
 
 	return nom;
@@ -36,45 +37,55 @@ int alphaTri(char *var, char *comparatif){
 	return res;
 }
 
-
-//METHODE PRODUIT---------------------------------------------------------------------------------------------------------------------
-
-T_Produit *creerProduit(char *marque, float prix, char qualite, int quantite){
-	T_Produit* NouveauProduit=malloc(sizeof(T_Produit));
-
-	marque=verifierNom(marque,'M');
-	strcpy(NouveauProduit->marque,marque);
-	NouveauProduit->prix=prix;
-	NouveauProduit->qualite=qualite;
-	NouveauProduit->quantite_en_stock=quantite;
-	NouveauProduit->suivant=NULL;
-
-	return NouveauProduit;
+void viderBuffer()
+{
+    int c = 0;
+    while (c != '\n' && c != EOF)
+    {
+        c = getchar();
+    }
 }
 
 
-int chercherProduit(T_Rayon *rayon, char *marque){
-	int res = 1;
-	T_Produit *actuel;
-	actuel = rayon -> premier;
-	while(actuel != NULL){
-			if(actuel -> marque == marque) res = 0;
-			actuel = actuel -> suivant;
+//METHODE PRODUIT---------------------------------------------------------------------------------------------------------------------
+
+
+//Initialistation d'un produit
+T_Produit *creerProduit(char *marque, float prix, char qualite, int quantite){
+	T_Produit* produit=malloc(sizeof(T_Produit));
+	strcpy(produit->marque,marque);
+	produit->prix=prix;
+	produit->qualite=qualite;
+	produit->quantite_en_stock=quantite;
+	produit->suivant=NULL;
+	return produit;
+}
+
+//recherche d'un produit
+T_Produit *chercherProduit(T_Rayon *rayon, char *marque){
+	T_Produit *produit=rayon->premier;
+	while(produit != NULL){
+			if(strcmp(produit -> marque, marque) == 0){
+				return produit;
+			}
+			produit = produit -> suivant;
 		}
-		return res;
 	}
 
 //Ajout d'un produit dans un rayon
 int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
-	T_Produit *actuel, *precedent;
-	actuel = rayon -> premier;
-	while(actuel != NULL){
-			precedent = actuel;
+	T_Produit *actuel = rayon -> premier;
+	if(rayon -> premier == NULL){
+		rayon -> premier = produit;
+	}
+	else{
+		while(actuel != NULL){
 			actuel = actuel -> suivant;
 		}
-	precedent -> suivant = produit;
-	
+		actuel = produit;
+	}
 	rayon->nombre_produits += 1;
+	return 1;
 }
 
 
@@ -86,21 +97,21 @@ int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
 
 int supprimerProduit(T_Rayon *rayon, char* marque_produit){
 	//On commence par rechercher l'adresse du produit que l'on veut supprimer.
-	T_Produit* Produit=rayon->premier,*ProduitPrecedent; //On récupère l'adresse du premier produit
-	while ( (Produit != NULL) && (strcmp(Produit->marque,marque_produit)!=0 )){
-		ProduitPrecedent=Produit;
-		Produit=Produit->suivant;
+	T_Produit* produit=rayon->premier,*precedent; //On récupère l'adresse du premier produit
+	while ( (produit != NULL) && (strcmp(produit->marque,marque_produit)!=0 )){
+		precedent=produit;
+		produit=produit->suivant;
 	}
 
 	//Si on n'a pas trouvé de produits de la marque
-	if (Produit==NULL){
+	if (produit==NULL){
 		printf("Nous sommes désolé il n'y a aucun produit de la marque %s dans le rayon %s.\n",rayon->nom_rayon,marque_produit);
 		return 0;
 	}
 
-	//On s'assure de ne pas perdre des morceaux de rayons...
-	ProduitPrecedent->suivant=Produit->suivant;
-	free(Produit);
+	//On s'assure de ne pas perdre des morceaux de rayons.../// cette partie est fausse...
+	precedent->suivant=produit->suivant;
+	free(produit);
 	rayon->nombre_produits -= 1;
 
 	printf("Le produit de la marque %s dans le rayon %s a bien été supprimé. \n",marque_produit,rayon->nom_rayon);
@@ -108,16 +119,19 @@ int supprimerProduit(T_Rayon *rayon, char* marque_produit){
 }
 
 
+// METHODE REQUETE
+
 //Recherche de produits se situant dans une fourchette de prix entrée par l'utilisateur
 void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max){
 	T_Requete *sentinelle, *actuel;
 	T_Rayon *rayon=magasin->premier;
 	T_Produit *produit=rayon->premier;
 	sentinelle -> suivant = NULL;
+	sentinelle -> precedent = NULL;
 	sentinelle -> produit = NULL;
 
-	while(rayon!=NULL){
-		while(produit !=NULL){
+	while(rayon != NULL){
+		while(produit != NULL){
 			if((produit->prix >= prix_min) && (produit->prix <= prix_max)){
 				if (sentinelle-> suivant == NULL){
 					sentinelle -> suivant = creerRequete(produit, rayon);
@@ -136,6 +150,7 @@ void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max){
 		}
 		rayon = rayon->suivant;
 	}
+	print("debug1")
 	trierRequete(sentinelle);
 	afficherRequete(sentinelle);
 }
@@ -162,11 +177,11 @@ void trierRequete(T_Requete *sentinelle){
 }
 
 void afficherRequete(T_Requete *sentinelle){
-	printf("------------------------------------------------------\n");
-    printf("|\tMarque\t|\tPrix\t|\tQualité\t|\tQuantité\t|\tRayon\t|\n");
-    printf("------------------------------------------------------\n");
+	printf("----------------------------------------------------\n");
+    printf("|\tMarque\t|\tPrix\t\t|\tQualité\t|\tQuantité\t|\tRayon\t|\n");
+    printf("----------------------------------------------------\n");
     T_Requete *actuel=sentinelle->suivant;
-	while(actuel == sentinelle){
+	while(actuel != sentinelle){
     	printf("|\t%s\t|\t%f\t|\t%c\t|\t%d\t|\t%s\t|\n", actuel -> produit->marque, actuel -> produit->prix, actuel -> produit->qualite, actuel -> produit->quantite_en_stock, actuel->rayon->nom_rayon);
     	actuel = actuel -> suivant;
 	}
@@ -187,40 +202,27 @@ T_Requete *creerRequete(T_Produit *produit, T_Rayon *rayon){
 //METHODE RAYON------------------------------------------------------------------------------------------------------------------------
 
 T_Rayon *creerRayon(char *nom){
-	T_Rayon* NouveauRayon=malloc(sizeof(T_Rayon));
-
-	nom=verifierNom(nom,'R');
-
-	strcpy(NouveauRayon->nom_rayon,nom);
-	//On initialise le contenu du rayon
-	NouveauRayon->nombre_produits=0;
-	NouveauRayon->premier=NULL;
-	NouveauRayon->suivant=NULL;
-
-	return NouveauRayon;
+	T_Rayon* rayon=malloc(sizeof(T_Rayon));
+	strcpy(rayon->nom_rayon,nom);
+	rayon->nombre_produits=0;
+	rayon->premier=NULL;
+	rayon->suivant=NULL;
+	return rayon;
 }
 
-//Ajout d'un rayon dans un magasin
+//Ajout d'un rayon dans un magasin sans tri
 int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon){
-	int res = 0, changement = 1;
-	T_Rayon *actuel=magasin->premier, *precedent;
+	T_Rayon *actuel=magasin->premier;
 	if(magasin->premier == NULL){
 		magasin->premier = rayon;
 	}
 	else{
-		while(actuel != NULL){
-			//res = alphaTri(rayon -> nom_rayon, actuel -> nom_rayon);
-			if(res == 1){
-				rayon -> suivant = precedent -> suivant;
-				precedent -> suivant = rayon;
-				changement = 0;
-				break;
-			}
-			precedent = actuel;
-			actuel = actuel -> suivant;
+		while(actuel -> suivant != NULL){
+				actuel = actuel -> suivant;
 		}
-		if(changement) precedent -> suivant = rayon;
+		actuel -> suivant = rayon;
 	}
+
 }
 	//renvoie 1 si l'ajout s'est bien passé, 0 sinon; l'ajout se fait en respectant le tri par ordre alphabétique sur le nom du
 	//rayon; on ne doit pas autoriser l'utilisateur à ajouter deux fois le même rayon
@@ -228,15 +230,15 @@ int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon){
 //Affichage de tous les produits d'un rayon
 void afficherRayon(T_Rayon *rayon){
     printf("\n");
-    printf("------------------------------------------------------\n");
-    printf("|\tMarque\t|\tPrix\t|\tQualité\t|\tQuantité\t|\n");
-    printf("------------------------------------------------------\n");
-    T_Produit *produit=rayon->premier;
+    printf("-------------------------------------------------------------------------\n");
+    printf("|\tMarque\t|\tPrix\t\t|\tQualité\t|\tQuantité|\n");
+    printf("-------------------------------------------------------------------------\n");
+    T_Produit *produit = rayon->premier;
     while(produit != NULL){
-    printf("|\t%s\t|\t%f\t|\t%c\t|\t%d\t|\n", produit->marque, produit->prix, produit->qualite, produit->quantite_en_stock);
-    produit = produit->suivant;
+    	printf("|\t%s\t|\t%f\t|\t%c\t|\t%d\t|\n", produit->marque, produit->prix, produit->qualite, produit->quantite_en_stock);
+    	produit = produit->suivant;
 	}
-    printf("------------------------------------------------------\n");
+    printf("-------------------------------------------------------------------------\n");
 }
 
 	//L'affichage se fait sous forme de liste triée sur le prix du produit
@@ -250,19 +252,16 @@ void afficherRayon(T_Rayon *rayon){
 	//sera au choix de l'utilisateur et qui contiendra les produits des deux rayons fusionnés triés par ordre croissant de prix.
 	//Vous veillerez à optimiser cette fonction de manière à effectuer le minimum d'opérations possible.
 
-
-
 T_Rayon *selectionnerRayon(T_Magasin *magasin){
 	afficherMagasin(magasin);
-	T_Rayon *tmp=malloc(sizeof(T_Rayon)), *res;
+	T_Rayon *actuel;
 	char nom[tailleNomMagasin];
     printf("Entrez un nom de rayon\n");
     scanf("%s", nom);
-    tmp = magasin->premier;
-    if(strcmp(tmp->nom_rayon,nom)==0){
-        res = tmp;
+    actuel = magasin->premier;
+    if(strcmp(actuel->nom_rayon,nom)==0){
+        return actuel;
     }
-    return res;
 }
 
 //Suppression d'un rayon et de tous les produits qu'il contient
@@ -308,28 +307,23 @@ int supprimerRayon(T_Magasin *magasin, char *nom_rayon){
 //METHODE MAGASIN-------------------------------------------------------------------------------------------------------------------------
 
 T_Magasin *creerMagasin(char *nom){
-	
-	T_Magasin* NouveauMagasin=malloc(sizeof(T_Magasin));
-
-	nom=verifierNom(nom,'S');
-
-	strcpy(NouveauMagasin->nom,nom);
-	//On initialise le contenu du magasin.
-	NouveauMagasin->premier=NULL;
+	T_Magasin* magasin=malloc(sizeof(T_Magasin));
+	strcpy(magasin->nom,nom);
+	magasin->premier=NULL;
 }
 
 //Affichage de tous les rayons d'un magasin
 void afficherMagasin(T_Magasin *magasin){
 	printf("\n");
-    printf("------------------------------------------------------\n");
+    printf("--------------------------------------------------------\n");
     printf("|\tNom du rayon\t|\tNombre de Produit\t|\n");
-    printf("------------------------------------------------------\n");
+    printf("--------------------------------------------------------\n");
     T_Rayon *rayon=magasin->premier;
 	while(rayon != NULL){
 		printf("|\t%s\t\t|\t\t%d\t\t|\n", rayon->nom_rayon, rayon->nombre_produits);
 		rayon = rayon -> suivant;
 	}
-	printf("------------------------------------------------------\n");
+	printf("--------------------------------------------------------\n");
 }
 
 	//L'affichage se fait sous forme de liste triée sur le nom des rayons
@@ -356,6 +350,7 @@ int afficherMenu(){
     printf("8.Rechercher un produit par prix\n");
     printf("9.Quitter\n\n");
     scanf("%d", &choix);
+    viderBuffer();
     
     return choix;
 }
@@ -365,8 +360,10 @@ T_Magasin *creerMagasinWrapper(){
 	T_Magasin *magasin;
 	printf("Entrer le nom du magasin\n");
     scanf("%s",nom);
+    viderBuffer();
+    verifierNom(nom,'S');
     magasin = creerMagasin(nom);
-    printf("Le magasin %s est créé\n", magasin ->nom);
+    printf("Le magasin %s est créée\n", magasin ->nom);
     return magasin;
 }
 
@@ -404,17 +401,24 @@ void ajouterProduitWrapper(T_Magasin *magasin){
 	char marque[tailleNomMagasin], qualite;
 	float prix;
 	int quantite_en_stock;
+	T_Produit *produit;
+	T_Rayon *rayon;
     printf("Entrer la marque du produit à ajouter\n");
-    scanf("%s",marque);
+    scanf("%s", marque);
+    viderBuffer();
     printf("Entrer la qualité du produit à ajouter\n");
-    scanf("%c",qualite);
+    scanf("%c", &qualite);
+    viderBuffer();
    	printf("Entrer le prix du produit à ajouter\n");
-    scanf("%f",prix);
+    scanf("%f", &prix);
+    viderBuffer();
    	printf("Entrer la quantite du produit à ajouter\n");
-    scanf("%f",quantite_en_stock);
-
-    ajouterProduit(selectionnerRayon(magasin), creerProduit(marque, prix, qualite, quantite_en_stock));
-
+    scanf("%d", &quantite_en_stock);
+    viderBuffer();
+    verifierNom(marque,'M');
+    produit = creerProduit(marque, prix, qualite, quantite_en_stock);
+    rayon = selectionnerRayon(magasin);
+    ajouterProduit(rayon, produit);
 }
 
 void afficherMagasinWrapper(T_Magasin *magasin){
@@ -429,6 +433,7 @@ void supprimerProduitWrapper(T_Magasin *magasin){
 	char marque[tailleNomMagasin];
 	printf("Entrer une marque de produit à supprimer\n");
 	scanf("%s", marque);
+	viderBuffer();
 	supprimerProduit(selectionnerRayon(magasin), marque);
 }
 
@@ -436,6 +441,7 @@ void supprimerRayonWrapper(T_Magasin *magasin){
 	char nom[tailleNomMagasin];
 	printf("Entrer un nom de rayon à supprimer\n");
 	scanf("%s", nom);
+	viderBuffer();
 	supprimerRayon(magasin, nom);
 }
 
@@ -445,8 +451,10 @@ void rechercheProduitsWrapper(T_Magasin *magasin){
 	printf("Entrer une fouchette de prix\n");
 	printf("Prix minimum\n");
 	scanf("%f", prix_min);
+	viderBuffer();
 	printf("Prix maximum\n");
 	scanf("%f", prix_max);
+	viderBuffer();
 	rechercheProduits(magasin, prix_min, prix_max);
 }
 
