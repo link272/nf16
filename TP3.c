@@ -366,14 +366,36 @@ T_Magasin *creerMagasinWrapper(){
 	printf("Entrer le nom du magasin\n");
     scanf("%s",nom);
     magasin = creerMagasin(nom);
-    printf("Le magasin %s est créée\n", magasin ->nom);
+    printf("Le magasin %s est créé\n", magasin ->nom);
     return magasin;
 }
 
 void ajouterRayonWrapper(T_Magasin *magasin){
-	char nom[tailleNomMagasin];
-    printf("Entrer le nom du rayon à ajouter au magasin %s\n", magasin -> nom);
-    scanf("%s",nom);
+	char nom[tailleNomRayon];
+	int nomUnique=0;
+	T_Rayon* rayonTMP;
+    
+    while (nomUnique==0){
+	    printf("Entrer le nom du rayon à ajouter au magasin %s\n", magasin -> nom);
+	    scanf("%s",nom);
+	 
+	    verifierNom(nom,'R');
+	    //après cette étape le nom est forcément valide.
+	 
+	    //il nous reste a terster l'unicité
+
+		rayonTMP=magasin->premier;
+		nomUnique=1;
+		while (rayonTMP != NULL){
+			if (strcmp(rayonTMP->nom_rayon,nom)==0){
+				printf("Le nom de rayon que vous avez saisi existe déjà.\n");
+				nomUnique=0;break;
+			}
+
+			rayonTMP=rayonTMP->suivant;
+		}
+	}
+
     ajouterRayon(magasin, creerRayon(nom));
     printf("le rayon %s est ajouté au magasin %s\n", nom, magasin -> nom);
 }
