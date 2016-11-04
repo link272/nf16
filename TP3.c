@@ -99,6 +99,15 @@ int c;
 }
 
 
+void afficherPrix(float prix){
+	// partie entière
+	int nb = floor(prix);
+	// partie décimale
+	int decimales=floor((prix-nb)*100);
+
+	printf("%d€%d",nb,decimales);
+}
+
 //METHODE PRODUIT---------------------------------------------------------------------------------------------------------------------
 
 
@@ -262,7 +271,10 @@ void afficherRequete(T_Requete *sentinelle){
     printf("-----------------------------------------------------------------------------------------------------------------\n");
     T_Requete *actuel=sentinelle->suivant;
 	while(actuel != sentinelle){
-    	printf("|\t%12s\t|\t%f\t|\t%c\t|\t%d\t\t|\t%12s\t|\n", actuel -> produit->marque, actuel -> produit->prix, actuel -> produit->qualite, actuel -> produit->quantite_en_stock, actuel->rayon->nom_rayon);
+    	printf("|\t%12s\t|\t", actuel -> produit->marque);
+    	afficherPrix(actuel -> produit->prix);
+    	printf("\t|\t%c\t|\t%d\t\t|\t%12s\t|\n", actuel -> produit->qualite, actuel -> produit->quantite_en_stock, actuel->rayon->nom_rayon);
+
     	actuel = actuel -> suivant;
 	}
 	printf("-----------------------------------------------------------------------------------------------------------------\n");
@@ -331,11 +343,13 @@ int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon){
 void afficherRayon(T_Rayon *rayon){
     printf("\n");
     printf("---------------------------------------------------------------------------------\n");
-    printf("|\tMarque\t\t|\tPrix\t\t|\tQualité\t|\tQuantité|\n");
+    printf("|\tMarque\t\t|\tPrix\t|\tQualité\t|\tQuantité|\n");
     printf("---------------------------------------------------------------------------------\n");
     T_Produit *produit = rayon->premier;
     while(produit != NULL){
-    	printf("|\t%12s\t|\t%f\t|\t%c\t|\t%d\t|\n", produit->marque, produit->prix, produit->qualite, produit->quantite_en_stock);
+    	printf("|\t%12s\t|\t", produit->marque);
+    	afficherPrix(produit->prix);
+    	printf("\t|\t%c\t|\t%d\t|\n",produit->qualite, produit->quantite_en_stock);
     	produit = produit->suivant;
 	}
     printf("---------------------------------------------------------------------------------\n");
