@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #define taillePARK 30
 #define tailleNomMarque 30
 #define tailleNomRayon 100
 #define tailleNomMagasin 100
+#define taillePrix 10
+#define tailleQuantite 10
 
 typedef struct Produit T_Produit;
 struct Produit{
@@ -105,3 +108,12 @@ void afficherRequete(T_Requete *sentinelle);
 void trierRequete(T_Requete *sentinelle);
 void viderBuffer();
 void afficherPrix(float prix);
+
+//Nombre de produits dans le magasin
+int NombreProduitsMagasin(T_Magasin *magasin);
+
+//Blindage de la saisie du prix
+float saisiePrix();
+
+//Blindage de la saisie d'une quantite
+int saisieQuantite();
