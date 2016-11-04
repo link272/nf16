@@ -8,9 +8,10 @@ char* verifierNom(char* nom,char type){
 	int taille;
 	if (type=='M') taille=tailleNomMarque;
 	if (type=='R') taille=tailleNomRayon;
-	if (type=='S') taille=tailleNomMagasin; //S pour shop
+	if (type=='S') taille=tailleNomMagasin; //S pour shop7
+	if (type=='P') taille=taillePrix;
 	while (strlen(nom)>taille){
-		printf("Nous sommes désolé, le nom rentré est trop long, merci d'en taper d'une longueur inférieur à %d caractères.\n",taille);
+		printf("Nous sommes désolé, le nom ou le prix rentré est trop long, merci d'en taper d'une longueur inférieur à %d caractères.\n",taille);
 		scanf("%s",nom);
 		viderBuffer();
 	}
@@ -32,6 +33,8 @@ void verifierMarqueProduit(T_Rayon* rayon,char* marque){
         verifierNom(marque,'M');
     }
 }
+
+
 
 //Fonction pour vérifer la saisie de qualité.
 void checkQualite(char* q){
@@ -101,12 +104,88 @@ int c;
 
 void afficherPrix(float prix){
 	// partie entière
-	int nb = floor(prix);
-	// partie décimale
-	int decimales=floor((prix-nb)*100);
+	int nb = round(prix);
+	// partie décimal
+	int decimales=round((prix-nb)*100);
 
 	printf("%d€%d",nb,decimales);
 }
+
+int NombreProduitsMagasin(T_Magasin *magasin){
+	T_Rayon* rayon=magasin->premier;
+	int total;
+	while (rayon != NULL){
+		total=total + rayon->nombre_produits;
+		rayon=rayon->suivant;
+	}
+	return total;
+}
+
+//Blindage de la saisie du prix
+float saisiePrix(){
+	float prix;
+	int test=0, nbsigne=0;
+	char str[taillePrix];
+	int i=0;
+
+	while (test==0 || nbsigne>1 || i==0){
+		nbsigne=0;
+		if (test!=0) printf("\nIl y a eu une erreure veuillez recommencer votre saisie.\n");
+		printf("Entrer le prix du produit sous la forme 1.12 pour 1€12\n");
+		scanf("%s",str);
+		viderBuffer();
+
+		verifierNom(str,'P');
+
+		i=0;
+		while (str[i]!='\0'){
+			if ( str[i]<'0' || str[i] >'9'){
+				if (str[i]=='.') nbsigne++;
+				else {nbsigne=2;break;} //Caractère impossible rentré
+			} 
+			i++;
+		}
+		test++;
+	}
+	
+	prix=(float) atof(str);
+	printf("\nLe prix saisie est :\n");
+	afficherPrix(prix);
+	printf("\n \n");
+	return prix ;
+}
+
+
+int saisieQuantite(){
+	int q;
+	int test=0, nbsigne=0;
+	char str[tailleQuantite]="-1";
+	int i=0;
+
+	while (test==0 || nbsigne>0 || i==0 || atoi(str)<1){
+		nbsigne=0;
+		if (test!=0) printf("\nIl y a eu une erreure veuillez recommencer votre saisie.\n");
+		printf("Entrer la quantite du produit.\n");
+		printf("Merci de saisir un nombre entier différent de 0.\n");
+		scanf("%s",str);
+		viderBuffer();
+
+		verifierNom(str,'Q');
+
+		i=0;
+		while (str[i]!='\0'){
+			if ( str[i]<'0' || str[i] >'9'){
+				nbsigne=2;break; //Caractère impossible rentré
+			} 
+			i++;
+		}
+		test++;
+	}
+		
+
+	return  atoi(str);
+}
+
 
 //METHODE PRODUIT---------------------------------------------------------------------------------------------------------------------
 
@@ -140,7 +219,7 @@ int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
 	//si le rayon est vide on ajoute notre produit directement
 	if(rayon -> premier == NULL){
 		rayon -> premier = produit;
-		rayon->nombre_produits += 1;
+		rayon->nombre_produits ++;
 		return 1;
 	}
 	//Sinon on regarde où on le place
@@ -148,14 +227,14 @@ int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
 		if (produit->prix<=actuel->prix){
 			produit->suivant=actuel;
 			rayon->premier=produit;
-			rayon->nombre_produits += 1;
+			rayon->nombre_produits ++;
 			return 1;
 		}
 		while(actuel->suivant != NULL){
 			if ( (actuel->prix <= produit->prix) && ( (actuel->suivant)->prix >= produit->prix) ){
 				produit->suivant=actuel->suivant;
 				actuel->suivant=produit;
-				rayon->nombre_produits += 1;
+				rayon->nombre_produits ++;
 				return 1;
 			}
 			actuel = actuel -> suivant;
@@ -163,6 +242,7 @@ int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
 
 		actuel->suivant = produit;
 		produit->suivant = NULL;
+		rayon->nombre_produits ++;
 		return 1;
 	}
 	return 0;	
@@ -175,22 +255,18 @@ int ajouterProduit(T_Rayon *rayon, T_Produit *produit){
 
 int supprimerProduit(T_Rayon *rayon, char* marque_produit){
 	//On commence par rechercher l'adresse du produit que l'on veut supprimer.
-	T_Produit* produit=rayon->premier,*precedent; //On récupère l'adresse du premier produit
+	T_Produit* produit=rayon->premier,*precedent=rayon->premier; //On récupère l'adresse du premier produit
 	while ( (produit != NULL) && (strcmp(produit->marque,marque_produit)!=0 )){
 		precedent=produit;
 		produit=produit->suivant;
 	}
 
-	//Si on n'a pas trouvé de produits de la marque
-	if (produit==NULL){
-		printf("Nous sommes désolé il n'y a aucun produit de la marque %s dans le rayon %s.\n",rayon->nom_rayon,marque_produit);
-		return 0;
-	}
-
-	//On s'assure de ne pas perdre des morceaux de rayons.../// cette partie est fausse...
-	precedent->suivant=produit->suivant;
+	//On s'assure de ne pas perdre des morceaux de rayons...
+	if (precedent==produit) rayon->premier=produit->suivant;
+	else precedent->suivant=produit->suivant;
+	
 	free(produit);
-	rayon->nombre_produits -= 1;
+	rayon->nombre_produits--;
 
 	printf("Le produit de la marque %s dans le rayon %s a bien été supprimé. \n",marque_produit,rayon->nom_rayon);
 	return 1;
@@ -396,24 +472,15 @@ T_Rayon *selectionnerRayon(T_Magasin *magasin){
 
 
 int supprimerRayon(T_Magasin *magasin, char *nom_rayon){
-//On commence par rechercher l'adresse du produit que l'on veut supprimer.
-	T_Rayon* Rayon=magasin->premier,*RayonPrecedent; //On récupère l'adresse du premier rayon
+//On commence par rechercher l'adresse du rayon que l'on veut supprimer.
+	T_Rayon* Rayon=magasin->premier,*RayonPrecedent=magasin->premier; //On récupère l'adresse du premier rayon
 	
 	while ( (Rayon != NULL) && (strcmp(Rayon->nom_rayon,nom_rayon)!=0 )){
 		RayonPrecedent=Rayon;
 		Rayon=Rayon->suivant;
 	}
 
-	//Si on n'a pas trouvé le rayon, on fait un msg d'erreur
-	if (Rayon==NULL){
-		printf("Nous sommes désolé il n'y a aucun rayon %s dans le magasin %s.\n",nom_rayon,magasin->nom);
-		return 0;
-	}
-
-	//On s'assure de ne pas perdre des rayons... On bifurque la liste chainée
-	RayonPrecedent->suivant=Rayon->suivant;
-
-	//On veille à libérer tout l'espace mémoire prix par les produits du rayons :
+	//On veille à libérer tout l'espace mémoire pris par les produits du rayons :
 	T_Produit* Produit=Rayon->premier,* ProduitSuivant;
 
 	while(Produit != NULL){
@@ -421,11 +488,19 @@ int supprimerRayon(T_Magasin *magasin, char *nom_rayon){
 		free(Produit);
 		Produit=ProduitSuivant;
 	}
+
+	//On s'assure de ne pas perdre des rayons... On bifurque la liste chainée
+	
+	if (Rayon==RayonPrecedent) magasin->premier=Rayon->suivant;
+	else RayonPrecedent->suivant=Rayon->suivant;
+
+	
 	printf("Tous les produits du rayons %s on bien étaient retirés.\n",nom_rayon);
 
-	free(Rayon);
+	
 
-	printf("Le rayon %s a bien été supprimé du magasin %s",nom_rayon,magasin->nom);
+	printf("Le rayon %s a bien été supprimé du magasin %s",Rayon->nom_rayon,magasin->nom);
+	free(Rayon);
 	return 1;
 }
 
@@ -545,18 +620,17 @@ void ajouterProduitWrapper(T_Magasin *magasin){
     scanf("%c", &qualite);
     checkQualite(&qualite);
  
-    printf("Entrer le prix du produit à ajouter\n");
-    scanf("%f", &prix);
-    viderBuffer();
-    printf("Entrer la quantite du produit à ajouter\n");
-    scanf("%d", &quantite_en_stock);
-    viderBuffer();
+    prix=saisiePrix();
+
+    quantite_en_stock=saisieQuantite();
  
     
     produit = creerProduit(marque, prix, qualite, quantite_en_stock);
  
     
-    ajouterProduit(rayon, produit);
+   int a= ajouterProduit(rayon, produit);
+   if (a==1) printf("Le produit a bien été ajouté.\n");
+   else printf("Il y a eu une erreure.\n");
 }
 
 void afficherMagasinWrapper(T_Magasin *magasin){
@@ -568,19 +642,47 @@ void afficherRayonWrapper(T_Magasin *magasin){
 }
 
 void supprimerProduitWrapper(T_Magasin *magasin){
-	char marque[tailleNomMagasin];
-	printf("Entrer une marque de produit à supprimer\n");
-	scanf("%s", marque);
-	viderBuffer();
-	supprimerProduit(selectionnerRayon(magasin), marque);
+	//on vérifie que le mgasin n'est pas vide de produit.
+	if(NombreProduitsMagasin(magasin) ==0) printf("Le magasin est actuellement vide (aucun produit). Veuillez d'abord créer un produit...\n");
+	else{
+		char marque[tailleNomMarque];
+		T_Rayon* rayon;
+		int test=0;
+
+		//on vérifie qu'on ne sélectionne pas un rayon vide
+		while (test==0 || rayon->premier==NULL){
+			if (test != 0) printf("Désolé ce rayon est vide, merci dans choisir un autre.\n \n");
+			printf("Dans quel rayon se trouve le produit à supprimer ?\n");
+			rayon=selectionnerRayon(magasin);
+			test++;
+		}
+		
+		afficherRayon(rayon);
+		printf("Entrer une marque de produit à supprimer\n");
+		scanf("%s", marque);
+		viderBuffer();
+		while(chercherProduit(rayon,marque)==NULL){
+	        printf("La marque que vous avez tappée n'existe pas dans ce rayon, merci de tapper une autre marque\n");
+	        printf("Entrer la marque du produit à ajouter\n");
+	        scanf("%s", marque);
+	        viderBuffer();
+	        verifierNom(marque,'M');
+	    }
+		supprimerProduit(rayon, marque);
+	}
 }
 
 void supprimerRayonWrapper(T_Magasin *magasin){
-	char nom[tailleNomMagasin];
-	printf("Entrer un nom de rayon à supprimer\n");
-	scanf("%s", nom);
-	viderBuffer();
-	supprimerRayon(magasin, nom);
+	if (magasin->premier==NULL)	printf("Désolé le magasin ne comporte pas de rayon. Veuillez d'abord en créer un...\n");
+	else{
+		char nom[tailleNomMagasin];
+		T_Rayon* rayon;
+		int test=0;
+
+		rayon=selectionnerRayon(magasin);
+
+		supprimerRayon(magasin, rayon->nom_rayon);
+	}	
 }
 
 
