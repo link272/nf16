@@ -104,3 +104,4 @@ T_Requete *creerRequete(T_Produit *produit, T_Rayon *rayon);
 void afficherRequete(T_Requete *sentinelle);
 void trierRequete(T_Requete *sentinelle);
 void viderBuffer();
+void afficherPrix(float prix);
