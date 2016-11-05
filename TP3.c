@@ -186,6 +186,32 @@ int saisieQuantite(){
 	return  atoi(str);
 }
 
+char* nouveauNomRayon(T_Magasin *magasin, char* nom){
+	int nomUnique=0;
+	T_Rayon* rayonTMP;
+	while (nomUnique==0){
+	    printf("Entrer le nom du rayon à ajouter au magasin %s\n", magasin -> nom);
+	    scanf("%s",nom);
+	 
+	    verifierNom(nom,'R');
+	    //après cette étape le nom est forcément valide.
+	 
+	    //il nous reste a terster l'unicité
+
+		rayonTMP=magasin->premier;
+		nomUnique=1;
+		while (rayonTMP != NULL){
+			if (strcmp(rayonTMP->nom_rayon,nom)==0){
+				printf("Le nom de rayon que vous avez saisi existe déjà.\n");
+				nomUnique=0;break;
+			}
+
+			rayonTMP=rayonTMP->suivant;
+		}
+	}
+	return nom;
+}
+ 
 
 //METHODE PRODUIT---------------------------------------------------------------------------------------------------------------------
 
@@ -449,7 +475,7 @@ T_Rayon *selectionnerRayon(T_Magasin *magasin){
 //renvoie 1 si la suppression s'est bien passée, 0 sinon; on veillera à libérer la mémoire précédemment allouée
 
 
-int supprimerRayon(T_Magasin *magasin, char *nom_rayon){
+int supprimerRayon(T_Magasin *magasin, char *nom_rayon, int suppProduit){
 //On commence par rechercher l'adresse du rayon que l'on veut supprimer.
 	T_Rayon* Rayon=magasin->premier,*RayonPrecedent=magasin->premier; //On récupère l'adresse du premier rayon
 	
@@ -459,25 +485,23 @@ int supprimerRayon(T_Magasin *magasin, char *nom_rayon){
 	}
 
 	//On veille à libérer tout l'espace mémoire pris par les produits du rayons :
-	T_Produit* Produit=Rayon->premier,* ProduitSuivant;
+	//Que si c'est demandé
+	if (suppProduit==1){
+		T_Produit* Produit=Rayon->premier,* ProduitSuivant;
 
-	while(Produit != NULL){
-		ProduitSuivant=Produit->suivant;
-		free(Produit);
-		Produit=ProduitSuivant;
+		while(Produit != NULL){
+			ProduitSuivant=Produit->suivant;
+			free(Produit);
+			Produit=ProduitSuivant;
+		}
 	}
+	
 
 	//On s'assure de ne pas perdre des rayons... On bifurque la liste chainée
 	
 	if (Rayon==RayonPrecedent) magasin->premier=Rayon->suivant;
 	else RayonPrecedent->suivant=Rayon->suivant;
 
-	
-	printf("Tous les produits du rayons %s on bien étaient retirés.\n",nom_rayon);
-
-	
-
-	printf("Le rayon %s a bien été supprimé du magasin %s",Rayon->nom_rayon,magasin->nom);
 	free(Rayon);
 	return 1;
 }
@@ -529,7 +553,8 @@ int afficherMenu(){
     printf("6.Supprimer un produit\n");
     printf("7.Supprimer un rayon\n");
     printf("8.Rechercher un produit par prix\n");
-    printf("9.Quitter\n\n");
+    printf("9.Fusionner deux Rayons\n");
+    printf("10.Quitter\n\n");
     printf("Exprimer votre choix: ");
     scanf("%d", &choix);
     viderBuffer();
@@ -551,29 +576,8 @@ T_Magasin *creerMagasinWrapper(){
 
 void ajouterRayonWrapper(T_Magasin *magasin){
 	char nom[tailleNomRayon];
-	int nomUnique=0;
-	T_Rayon* rayonTMP;
-    
-    while (nomUnique==0){
-	    printf("Entrer le nom du rayon à ajouter au magasin %s\n", magasin -> nom);
-	    scanf("%s",nom);
-	 
-	    verifierNom(nom,'R');
-	    //après cette étape le nom est forcément valide.
-	 
-	    //il nous reste a terster l'unicité
-
-		rayonTMP=magasin->premier;
-		nomUnique=1;
-		while (rayonTMP != NULL){
-			if (strcmp(rayonTMP->nom_rayon,nom)==0){
-				printf("Le nom de rayon que vous avez saisi existe déjà.\n");
-				nomUnique=0;break;
-			}
-
-			rayonTMP=rayonTMP->suivant;
-		}
-	}
+	  
+	nouveauNomRayon(magasin,nom);
 
     ajouterRayon(magasin, creerRayon(nom));
     printf("le rayon %s est ajouté au magasin %s\n", nom, magasin -> nom);
@@ -659,8 +663,15 @@ void supprimerRayonWrapper(T_Magasin *magasin){
 
 		rayon=selectionnerRayon(magasin);
 
-		supprimerRayon(magasin, rayon->nom_rayon);
+		int a=supprimerRayon(magasin, rayon->nom_rayon,1);
+		if (a==1){
+			printf("Tous les produits du rayons %s on bien étaient retirés.\n",rayon->nom_rayon);
+			printf("Le rayon %s a bien été supprimé du magasin %s",rayon->nom_rayon,magasin->nom);
+		}
+		else printf("Il y a eu une erreure.\n");
 	}	
+
+	
 }
 
 
@@ -697,6 +708,130 @@ T_Magasin *testing(){
 	return magasin;
 
 }
+
+int fusionnerRayonsWrapper(T_Magasin *magasin){
+	int nbRayons=0;
+	T_Rayon* rayon=magasin->premier;
+	while (rayon != NULL){
+		nbRayons++;
+		rayon=rayon->suivant;
+	}
+
+	if (nbRayons<2){
+		printf("Désolé, il n'y a pas assez de rayon dans le magasin pour en fusionner...\n");
+		return 0;
+	}
+
+	//Là on a assez de rayon pour en fusioner
+
+	int test=0;
+	T_Rayon* rayon1,*rayon2;
+	do{
+		if (test!=0) printf("Désolé, vous avez choisi deux fois le même rayon, veuillez recommencer.\n");
+		printf("Entrez les noms de rayons à fusionner.\n");
+		rayon1=selectionnerRayon(magasin);
+		printf("\nEntrez le nom du deuxième rayon.");
+		rayon2=selectionnerRayon(magasin);
+		test++;
+	}while(strcmp(rayon1->nom_rayon,rayon2->nom_rayon)==0); //On recommence temps que l'on a pas sélectionner deux rayons différents
+
+	//A ce niveau on connait les deux rayons à fusionner.
+
+	T_Rayon *rayonFusion=creerRayon("tmp");
+
+	T_Produit *produit1=rayon1->premier, *produit2=rayon2->premier, *actuel; //Actuel stock l'addresse du dernier produit fusionné
+
+	//On commence par éliminer les cas triviaux
+	if (produit1 == NULL) rayonFusion->premier=produit2;
+	else if (produit2==NULL) rayonFusion->premier=produit1;
+	else if (produit1 == NULL && produit2 == NULL) rayonFusion->premier=NULL;
+	//Puis on rentre dans le vif du sujet
+	else{
+		//on raccorde le début du rayon
+		if(produit1->prix < produit2->prix){
+			rayonFusion->premier=produit1;
+			produit1=produit1->suivant;
+		}
+		else{
+			rayonFusion->premier=produit2;
+			produit2=produit2->suivant;
+		};
+
+		actuel=rayonFusion->premier;
+		//on fusionne le reste
+		while(produit1 != NULL  && produit2 != NULL){
+			if(produit1->prix < produit2->prix){
+				actuel->suivant=produit1;
+				actuel=actuel->suivant;
+				produit1=produit1->suivant;
+			}
+			else{
+				actuel->suivant=produit2;
+				actuel=actuel->suivant;
+				produit2=produit2->suivant;
+			}
+		}
+
+		//On complète le rayon si on n'est pas aller au bout de l'un ou de l'autre
+		if (produit1 == NULL) actuel->suivant=produit2;
+		else actuel->suivant=produit1;
+	}
+	
+
+	rayonFusion->nombre_produits=rayon1->nombre_produits + rayon2 -> nombre_produits;
+
+	supprimerRayon(magasin,rayon1->nom_rayon,0);//on ne supprime pas (en mémoire) les produits du rayon
+	supprimerRayon(magasin,rayon2->nom_rayon,0);//on ne supprime pas (en mémoire) les produits du rayon
+	
+
+	//Vérification qu'il n'y a pas deux fois la même marque dans le rayon fusioner
+	produit1=rayonFusion->premier;
+	produit2=produit1->suivant;
+	T_Produit *precedent;
+
+	while (produit1 != NULL){
+		produit2=produit1->suivant;
+		precedent=produit1;
+
+		while(produit2 != NULL){
+			if (strcmp(produit1->marque,produit2->marque)==0){
+				//On a deux produits de la même marque
+
+				produit1->quantite_en_stock = produit1->quantite_en_stock + produit2->quantite_en_stock; 
+				
+				printf("\n \n Les deux produits de la marque %s on été fusionnés en un seul.\n", produit1->marque);
+				printf("Les quantités des deux ont été additionnées.\n");
+				printf("La qualité du moins cher a été conservé.\n");
+				
+				//On reforme la chaine
+				precedent->suivant=produit2->suivant;
+				free(produit2);
+				printf("L'espace mémoire du deuxième a été libéré.\n \n \n ");
+				produit2=precedent;
+				rayonFusion->nombre_produits--;
+			}
+			else{
+				precedent=produit2;
+				produit2=produit2->suivant;
+			}
+			
+		}
+
+		produit1=produit1->suivant;
+	}
+
+
+
+	printf("Choississez un nouveau nom pour votre rayon :\n");
+	nouveauNomRayon(magasin, rayonFusion->nom_rayon);
+	ajouterRayon(magasin,rayonFusion);
+
+	//Vérifier pas deux fois la même marque
+	//A faire
+	//penser a faire des free
+}
+
+
 
 void viderMagasin(T_Magasin *magasin){
 	T_Rayon *rayon=magasin->premier, *rPrecedent;
@@ -751,9 +886,14 @@ void main(){
                 rechercheProduitsWrapper(magasin);
                 break;
             case 9:
+            	fusionnerRayonsWrapper(magasin);
+            	break;
+            case 10:
             	viderMagasin(magasin);
                 state = 0;
                 break;
+            default: 
+            	break;
         }
     }
 }
