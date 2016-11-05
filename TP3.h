@@ -9,17 +9,19 @@
 #define tailleNomMagasin 100
 #define taillePrix 10
 #define tailleQuantite 10
-
+typedef struct Rayon T_Rayon;
 typedef struct Produit T_Produit;
+
 struct Produit{
 	char marque[tailleNomMarque];
 	float prix;
 	char qualite; //valeur possible A, B ou C
 	int quantite_en_stock;
 	T_Produit* suivant; //Pointeur vers le produit suivant dans le rayon
+	T_Rayon* rayon; //Utilisé que pour la fonction pour afficher prix, ne prend pas trop de place en mémoire
 };
 
-typedef struct Rayon T_Rayon;
+
 struct Rayon{
 	char nom_rayon[tailleNomRayon];
 	int nombre_produits; 
@@ -103,9 +105,7 @@ char* verifierNom(char* nom,char type);
 //Pour la comparaison alphabétique de string
 int strCompareAlpha(char* str1,char *str2);
 
-T_Requete *creerRequete(T_Produit *produit, T_Rayon *rayon);
-void afficherRequete(T_Requete *sentinelle);
-void trierRequete(T_Requete *sentinelle);
+void afficherRechercheProduit(T_Rayon *rayon);
 void viderBuffer();
 void afficherPrix(float prix);
 
@@ -117,3 +117,5 @@ float saisiePrix();
 
 //Blindage de la saisie d'une quantite
 int saisieQuantite();
+
+void viderMagasin(T_Magasin *magasin);
