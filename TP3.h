@@ -81,7 +81,7 @@ int supprimerProduit(T_Rayon *rayon, char* marque_produit);
 
 
 //Suppression d'un rayon et de tous les produits qu'il contient
-int supprimerRayon(T_Magasin *magasin, char *nom_rayon);
+int supprimerRayon(T_Magasin *magasin, char *nom_rayon, int suppProduit);
 	//renvoie 1 si la suppression s'est bien passée, 0 sinon; on veillera à libérer la mémoire précédemment allouée
 
 
@@ -119,3 +119,7 @@ float saisiePrix();
 int saisieQuantite();
 
 void viderMagasin(T_Magasin *magasin);
+
+int fusionnerRayonsWrapper(T_Magasin *magasin);
+
+char* nouveauNomRayon(T_Magasin *magasin, char* nom);
