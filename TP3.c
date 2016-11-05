@@ -198,6 +198,7 @@ T_Produit *creerProduit(char *marque, float prix, char qualite, int quantite){
 	produit->qualite=qualite;
 	produit->quantite_en_stock=quantite;
 	produit->suivant=NULL;
+	produit->rayon=NULL;
 	return produit;
 }
 
@@ -277,79 +278,61 @@ int supprimerProduit(T_Rayon *rayon, char* marque_produit){
 
 //Recherche de produits se situant dans une fourchette de prix entrée par l'utilisateur
 void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max){
-	T_Requete *sentinelle = malloc(sizeof(T_Requete)), *actuel;
-	T_Rayon *rayon=magasin->premier;
-	T_Produit *produit;
-	sentinelle -> suivant = NULL;
-	sentinelle -> precedent = NULL;
-	sentinelle -> produit = NULL;
-	while(rayon != NULL){
-		produit = rayon -> premier;
-		while(produit != NULL){
-			if((produit->prix >= prix_min) && (produit->prix <= prix_max)){
-				if (sentinelle-> suivant == NULL){
-					sentinelle -> suivant = creerRequete(produit, rayon);
-					sentinelle -> suivant -> precedent = sentinelle;
-					actuel = sentinelle -> suivant;
-					actuel -> suivant = sentinelle;
-				}
-				else{
-					actuel -> suivant = creerRequete(produit, rayon);
-					actuel -> suivant -> precedent = actuel;
-					actuel = actuel -> suivant;
-					actuel -> suivant = sentinelle;
-				}
-			}
-			produit = produit -> suivant;
-		}
-		rayon = rayon -> suivant;
+	//on crée un rayon temporaire qui stockera les produits trouvés
+	//Les produits stockés sont automatiquement triés par ordre de prix, lors de leur ajout.
+	T_Rayon* rayonTMP=malloc(sizeof(T_Rayon));
+	T_Rayon* rayon=magasin->premier;
+	T_Produit* produit;
+	T_Produit* produitTMP;
 
+	while(rayon!=NULL){
+		//On parcours les rayons
+		produit=rayon->premier;
+
+		while(produit!=NULL){
+			//on récupère les produits
+			if (produit->prix >= prix_min){
+				if (produit->prix <= prix_max){
+					produitTMP=creerProduit(produit->marque,produit->prix,produit->qualite,produit->quantite_en_stock);
+					produitTMP->rayon=rayon;
+					ajouterProduit(rayonTMP,produitTMP);
+				}
+				else{ produit=NULL;break;break;}
+			} 
+			produit=produit->suivant;
+		}
+
+		rayon=rayon->suivant;
 	}
-	//trierRequete(sentinelle);
-	afficherRequete(sentinelle);
+
+
+	//on affiche les produits
+	if (rayonTMP->premier != NULL) afficherRechercheProduit(rayonTMP);
+	else printf("Nous sommes désolés, aucun produit ne correspons à votre recherche.\n");
+
+	//on libère l'espace mémoire.
+	T_Produit* precedent;
+	produit=rayonTMP->premier;
+
+	while (produit != NULL){
+		precedent = produit;
+		free(produit);
+		produit=produit->suivant;
+	}
+	free(rayonTMP);
 }
 
-void trierRequete(T_Requete *sentinelle){
-	//on trie la requete du plus petit prix au plus grand prix
-	printf("debug0");
-	T_Requete *actuel;
-	int changement = 1;
-	while (changement){
-		changement = 0;
-		actuel = sentinelle->suivant;
-		printf("%s\n", actuel -> produit -> marque);
-		while(actuel->suivant != sentinelle){
-			printf("%s\n", actuel -> produit -> marque);
-			if (actuel -> produit -> prix > actuel -> suivant -> produit -> prix){
-				actuel -> precedent -> suivant = actuel -> suivant;
-				actuel -> suivant = actuel -> suivant -> suivant;
-				actuel -> suivant -> precedent -> suivant = actuel;
-				actuel -> suivant -> precedent -> precedent = actuel -> precedent;
-				actuel -> precedent = actuel -> suivant -> precedent;
-				actuel -> suivant -> precedent = actuel;
-				changement = 1;
-				actuel = actuel -> precedent;
-				printf("%s\n", actuel -> produit -> marque);
-
-
-			}
-		}
-	}
-	printf("debug1");
-
-
-}
-
-void afficherRequete(T_Requete *sentinelle){
+void afficherRechercheProduit(T_Rayon *rayon){
 
 	printf("-----------------------------------------------------------------------------------------------------------------\n");
-    printf("|\tMarque\t\t|\tPrix\t\t|\tQualité\t|\tQuantité\t|\tRayon\t\t|\n");
+    printf("|\tMarque\t\t|\tPrix\t|\tQualité\t|\tQuantité\t|\tRayon\t\t|\n");
     printf("-----------------------------------------------------------------------------------------------------------------\n");
-    T_Requete *actuel=sentinelle->suivant;
-	while(actuel != sentinelle){
-    	printf("|\t%12s\t|\t", actuel -> produit->marque);
-    	afficherPrix(actuel -> produit->prix);
-    	printf("\t|\t%c\t|\t%d\t\t|\t%12s\t|\n", actuel -> produit->qualite, actuel -> produit->quantite_en_stock, actuel->rayon->nom_rayon);
+    T_Produit *actuel=rayon->premier;
+
+	while(actuel != NULL){
+    	printf("|\t%12s\t|\t", actuel ->marque);
+    	afficherPrix(actuel->prix);
+    	printf("\t|\t%c\t|\t%d\t\t|\t%12s\t|\n", actuel ->qualite, actuel ->quantite_en_stock, actuel->rayon->nom_rayon);
 
     	actuel = actuel -> suivant;
 	}
@@ -357,12 +340,7 @@ void afficherRequete(T_Requete *sentinelle){
 
 }
 
-T_Requete *creerRequete(T_Produit *produit, T_Rayon *rayon){
-	T_Requete *requete=malloc(sizeof(T_Requete));
-	requete->produit = produit;
-	requete->rayon = rayon;
-	return requete;
-}
+
 	//L'affichage se fait sous forme de liste triée par ordre croissant de prix du produit.
 	//Vous expliquerez dans votre rapport votre choix de créer des structures spécifiques ou d'utiliser les structures déjà définies
 	//pour cette fonction. Vous veillerez à optimiser cette fonction de manière à effectuer le minimum d'opérations possible.
@@ -689,10 +667,13 @@ void supprimerRayonWrapper(T_Magasin *magasin){
 void rechercheProduitsWrapper(T_Magasin *magasin){
 	float prix_min, prix_max = 3.0;
 	printf("Entrer une fouchette de prix\n");
-	printf("Prix minimum\n");
-	scanf("%f", &prix_min);
-	printf("Prix maximum\n");
-	scanf("%f", &prix_max);
+	printf("Prix minimum ?\n");
+
+	prix_min=saisiePrix();
+	
+	printf("Prix maximum ?\n");
+	prix_max=saisiePrix();
+
 	rechercheProduits(magasin, prix_min, prix_max);
 }
 
@@ -715,6 +696,28 @@ T_Magasin *testing(){
 	ajouterProduit(r3, p8);
 	return magasin;
 
+}
+
+void viderMagasin(T_Magasin *magasin){
+	T_Rayon *rayon=magasin->premier, *rPrecedent;
+	T_Produit *produit,*pPrecedent;
+
+	while (rayon != NULL){
+		
+		produit=rayon->premier;
+		while (produit != NULL){
+			pPrecedent=produit;
+			free(produit);
+			produit=pPrecedent->suivant;
+		}
+		
+		rPrecedent=rayon;
+		free(rayon);
+		rayon=rPrecedent->suivant;
+	}
+	free(magasin);
+	printf("Vous avez quittez, tous les espaces mémoires ont été libérés !");
+	printf("\n");
 }
 
 void main(){
@@ -748,6 +751,7 @@ void main(){
                 rechercheProduitsWrapper(magasin);
                 break;
             case 9:
+            	viderMagasin(magasin);
                 state = 0;
                 break;
         }
