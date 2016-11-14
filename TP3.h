@@ -46,80 +46,179 @@ struct Requete{
 };
 
 
-
-//Création et initialisation des structures
-T_Produit *creerProduit(char *marque, float prix, char qualite, int quantite);
-T_Rayon *creerRayon(char *nom);
-T_Magasin *creerMagasin(char *nom);
-
-
-//Ajout d'un rayon dans un magasin
-int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon);
-	//renvoie 1 si l'ajout s'est bien passé, 0 sinon; l'ajout se fait en respectant le tri par ordre alphabétique sur le nom du
-	//rayon; on ne doit pas autoriser l'utilisateur à ajouter deux fois le même rayon
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//Ajout d'un produit dans un rayon
-int ajouterProduit(T_Rayon *rayon, T_Produit *produit);
-	//renvoie 1 si l'ajout s'est bien passé, 0 sinon; l'ajout se fait en respectant le tri par ordre croissant du prix du produit;
-	//on ne doit pas autoriser l'utilisateur à ajouter deux fois la même marque de produit dans un rayon
+//METHODES COMMUNES------------------------------------------------------------------------------------------------------------------
 
-
-//Affichage de tous les rayons d'un magasin
-void afficherMagasin(T_Magasin *magasin);
-	//L'affichage se fait sous forme de liste triée sur le nom des rayons
-
-
-//Affichage de tous les produits d'un rayon
-void afficherRayon(T_Rayon *rayon);
-	//L'affichage se fait sous forme de liste triée sur le prix du produit
-
-
-//Suppresion d'un produit dans un rayon
-int supprimerProduit(T_Rayon *rayon, char* marque_produit);
-	//renvoie 1 si le retrait s'est bien passé, 0 sinon; on veillera à libérer la mémoire précédemment allouée
-
-
-//Suppression d'un rayon et de tous les produits qu'il contient
-int supprimerRayon(T_Magasin *magasin, char *nom_rayon, int suppProduit);
-	//renvoie 1 si la suppression s'est bien passée, 0 sinon; on veillera à libérer la mémoire précédemment allouée
-
-
-//Recherche de produits se situant dans une fourchette de prix entrée par l'utilisateur
-void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max);
-	//L'affichage se fait sous forme de liste triée par ordre croissant de prix du produit.
-	//Vous expliquerez dans votre rapport votre choix de créer des structures spécifiques ou d'utiliser les structures déjà définies
-	//pour cette fonction. Vous veillerez à optimiser cette fonction de manière à effectuer le minimum d'opérations possible.
-
-
-//Fusionner deux rayons
-void fusionnerRayons(T_Magasin *magasin);
-	//L'utilisateur choisit deux rayons parmi ceux du magasin. On fusionne alors ces deux rayons en un seul dont le nom
-	//sera au choix de l'utilisateur et qui contiendra les produits des deux rayons fusionnés triés par ordre croissant de prix.
-	//Vous veillerez à optimiser cette fonction de manière à effectuer le minimum d'opérations possible.
-
-
-//Pour vérifier que la longueur des noms rentrés est la bonne
+//Vérifier que l'on saisie une chaine de caractère de la bonne taille selon le typé.
 char* verifierNom(char* nom,char type);
+ 
+//Vérifier qu'une marque entrée n'existe pas déjà dans le rayon. Le cas échéant demande un nouveau nom.
+void verifierExistenceMarqueProduit(T_Rayon* rayon,char* marque);
 
-//Pour la comparaison alphabétique de string
+//Fonction pour vérifer/blinder la saisie de qualité.
+void checkQualite(char* q);
+
+//Comparaison alphabétique insensible à la casse
+//retourne -1 si str1 est avant str2; 0 si les deux sont égaux; 1 sinon
 int strCompareAlpha(char* str1,char *str2);
 
-void afficherRechercheProduit(T_Rayon *rayon);
+//Fonction pour éviter les cafouillages avec scanf
 void viderBuffer();
-void afficherPrix(float prix);
 
-//Nombre de produits dans le magasin
+//Calcul du nombre de produits présents dans le magasin
 int NombreProduitsMagasin(T_Magasin *magasin);
 
 //Blindage de la saisie du prix
 float saisiePrix();
 
-//Blindage de la saisie d'une quantite
+//Fonction pour aficher de manière sympatique les prix
+void afficherPrix(float prix);
+
+//Blindage de la saisie de quantités
+//Variante de la fonction saisiePrix
 int saisieQuantite();
 
-void viderMagasin(T_Magasin *magasin);
+//Sélection d'un nouveau nom de rayon (avec blindage)
+char* nouveauNomRayon(T_Magasin *magasin, char* nom);
+ 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//METHODE PRODUIT---------------------------------------------------------------------------------------------------------------------
+
+//Initialistation d'un produit
+T_Produit *creerProduit(char *marque, float prix, char qualite, int quantite);
+
+//recherche si un produit est présent dans un rayon
+T_Produit *chercherProduit(T_Rayon *rayon, char *marque);
+
+//Ajout d'un produit dans un rayon
+//Les différentes vérifications sont faites avant cet appel
+int ajouterProduit(T_Rayon *rayon, T_Produit *produit);
+
+//Suppresion d'un produit dans un rayon
+//renvoie 1 si le retrait s'est bien passé, 0 sinon; on veillera à libérer la mémoire précédemment allouée
+int supprimerProduit(T_Rayon *rayon, char* marque_produit);
+
+//Recherche de produits se situant dans une fourchette de prix entrée par l'utilisateur
+void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max);
+
+//Affichage de la recherche de produits
+void afficherRechercheProduit(T_Rayon *rayon);
+	
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//METHODE RAYON------------------------------------------------------------------------------------------------------------------------
+
+//Initialisation d'un rayon
+T_Rayon *creerRayon(char *nom);
+
+//Ajout d'un rayon dans un magasin avec respect du tri alphabétique
+//la vérification sur le nom de rayon a été faite avant l'appel de cette fonction
+int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon);
+
+//Affichage de tous les produits d'un rayon
+void afficherRayon(T_Rayon *rayon);
+//L'affichage se fait sous forme de liste triée sur le prix du produit
+
+
+//Fonction pour sélectionner un rayon dans un magasin
+T_Rayon *selectionnerRayon(T_Magasin *magasin);
+
+//Suppression d'un rayon et de tous les produits qu'il contient
+//renvoie 1 si la suppression s'est bien passée, 0 sinon; on veillera à libérer la mémoire précédemment allouée
+int supprimerRayon(T_Magasin *magasin, char *nom_rayon, int suppProduit);
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//METHODE MAGASIN-------------------------------------------------------------------------------------------------------------------------
+//initialisation d'un magasin
+T_Magasin *creerMagasin(char *nom);
+
+//Affichage de tous les rayons d'un magasin
+void afficherMagasin(T_Magasin *magasin);
+//L'affichage se fait sous forme de liste triée sur le nom des rayons
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
+//PARTIE INTERACTIVE-----------------------------------------------------------------------------------------------------------------------
+
+//Affichage du menu
+int afficherMenu();
+
+//BLoc pour la création/initialisation d'un magasin
+T_Magasin *creerMagasinWrapper();
+
+//Bloc pour l'ajout d'un rayon
+void ajouterRayonWrapper(T_Magasin *magasin);
+
+//Bloc pour l'ajout d'un produit
+void ajouterProduitWrapper(T_Magasin *magasin);
+
+//Bloc pour afficher les rayons du magasin
+void afficherMagasinWrapper(T_Magasin *magasin);
+
+//Bloc pour afficher le comptenu d'un rayon 
+void afficherRayonWrapper(T_Magasin *magasin);
+
+//Bloc pour supprimer un produit
+void supprimerProduitWrapper(T_Magasin *magasin);
+
+//Bloc pour la suppression d'un rayon
+void supprimerRayonWrapper(T_Magasin *magasin);
+
+//Bloc pour la recherche des produits dans une fournchette de prix
+void rechercheProduitsWrapper(T_Magasin *magasin);
+
+//Bloc pour fusionner deux rayon d'un magasin
 int fusionnerRayonsWrapper(T_Magasin *magasin);
 
-char* nouveauNomRayon(T_Magasin *magasin, char* nom);
+//Vide tous les espaces mémoires d'un magain
+void viderMagasin(T_Magasin *magasin);
+
+//Remplissage d'un magasin pour tester
+T_Magasin *testing();
