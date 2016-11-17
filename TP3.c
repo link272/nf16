@@ -326,6 +326,7 @@ void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max){
 	//on crée un rayon temporaire qui stockera les produits trouvés
 	//Les produits stockés sont automatiquement triés par ordre de prix, lors de leur ajout.
 	T_Rayon* rayonTMP=(T_Rayon*)malloc(sizeof(T_Rayon));
+	rayonTMP -> premier=NULL;
 	T_Rayon* rayon=magasin->premier;
 	T_Produit* produit;
 	T_Produit* produitTMP;
@@ -342,7 +343,7 @@ void rechercheProduits(T_Magasin *magasin, float prix_min, float prix_max){
 					produitTMP->rayon=rayon; //on sauvegarde le rayon dans lequel était le produit
 					ajouterProduit(rayonTMP,produitTMP);
 				}
-				else{ produit=NULL;break;break;}//On passe directement au rayon suivant (optimisation)
+				else{ produit=NULL;break;}//On passe directement au rayon suivant (optimisation)
 			} 
 			produit=produit->suivant;
 		}
@@ -427,7 +428,7 @@ int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon){
 
 		while(actuel->suivant!=NULL){
 			//si on est au "milieu"
-			if (strCompareAlpha(rayon->nom_rayon,actuel->nom_rayon)==-1 && strCompareAlpha(rayon->nom_rayon,(actuel->suivant)->nom_rayon)==1){
+			if (strCompareAlpha(rayon->nom_rayon,actuel->nom_rayon)==1 && strCompareAlpha(rayon->nom_rayon,(actuel->suivant)->nom_rayon)==-1){
 				rayon->suivant=actuel->suivant;
 				actuel->suivant=rayon;
 				return 1;
@@ -440,6 +441,7 @@ int ajouterRayon(T_Magasin *magasin, T_Rayon *rayon){
 	}
 	return 0;
 }
+
 
 //Affichage de tous les produits d'un rayon
 void afficherRayon(T_Rayon *rayon){
@@ -871,18 +873,19 @@ void viderMagasin(T_Magasin *magasin){
 
 T_Magasin *testing(){
 	T_Magasin *magasin = creerMagasin("Magasin de test NF16");
-	T_Rayon *r1 = creerRayon("Fromage"), *r2 = creerRayon("Patisserie"), *r3 = creerRayon("Poisson");
+	T_Rayon *r1 = creerRayon("Cafe"), *r2 = creerRayon("Boissons"), *r3 = creerRayon("Yaourts"), *r4=creerRayon("Lessive");
 	ajouterRayon(magasin, r1);
 	ajouterRayon(magasin, r2);
 	ajouterRayon(magasin, r3);
+	ajouterRayon(magasin, r4);
 	char a='A', b='B';
-	T_Produit *p1 = creerProduit("Saint-Nectaire", 3.14, a, 45), *p2 = creerProduit("Comte", 6.28, b, 90), *p3 = creerProduit("Camember", 1.28, a, 24);
-	T_Produit *p4 = creerProduit("Gateau", 1.14, a, 45), *p6 = creerProduit("Pain", 0.28, b, 90);
+	T_Produit *p1 = creerProduit("Saint-Nectaire", 3, a, 45), *p2 = creerProduit("Comte", 2, b, 90), *p3 = creerProduit("Camember", 5, a, 24);
+	T_Produit *p4 = creerProduit("Gateau", 4, a, 45), *p6 = creerProduit("Pain", 0.28, b, 90);
 	T_Produit *p7 = creerProduit("Saumon", 7.14, a, 45), *p8 = creerProduit("Fletan", 15.28, b, 90);
 	ajouterProduit(r1, p1);
 	ajouterProduit(r1, p2);
 	ajouterProduit(r1, p3);
-	ajouterProduit(r2, p4);
+	ajouterProduit(r1, p4);
 	ajouterProduit(r2, p6);
 	ajouterProduit(r3, p7);
 	ajouterProduit(r3, p8);
@@ -899,4 +902,3 @@ T_Magasin *testing(){
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-
