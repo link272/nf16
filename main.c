@@ -4,6 +4,10 @@ void main(){
 	T_Magasin *magasin;
 	int state = 1;
 	magasin = testing();
+	printf("##########################################################\n");
+   	printf("Un magasin suivant le protocole d'évaluation a été chargé.\n");
+    	printf("##########################################################\n");
+
     while(state){
         switch(afficherMenu()){
             case 1:
