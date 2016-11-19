@@ -878,19 +878,29 @@ T_Magasin *testing(){
 	ajouterRayon(magasin, r2);
 	ajouterRayon(magasin, r3);
 	ajouterRayon(magasin, r4);
-	char a='A', b='B';
-	T_Produit *p1 = creerProduit("Saint-Nectaire", 3, a, 45), *p2 = creerProduit("Comte", 2, b, 90), *p3 = creerProduit("Camember", 5, a, 24);
-	T_Produit *p4 = creerProduit("Gateau", 4, a, 45), *p6 = creerProduit("Pain", 0.28, b, 90);
-	T_Produit *p7 = creerProduit("Saumon", 7.14, a, 45), *p8 = creerProduit("Fletan", 15.28, b, 90);
+	char a='A', b='B', c='C';
+	T_Produit *p1 = creerProduit("Or", 7, a, 45), *p2 = creerProduit("Grand-Mere", 6, b, 90), *p3 = creerProduit("Lavazza", 9, a, 24);
+	T_Produit *p4 = creerProduit("Nescafe", 8, c, 45), *p6 = creerProduit("Orangina", 3, b, 90);
+	T_Produit *p7 = creerProduit("Schweppes", 6, a, 45), *p8 = creerProduit("Fanta", 4, b, 90);
+	T_Produit *p9 = creerProduit("Danette", 4, c, 6), *p10 = creerProduit("Laitiere", 2, b, 9);
+	T_Produit *p11 = creerProduit("Nestle", 5, a, 45), *p12 = creerProduit("Skip", 15, b, 90);
+	T_Produit *p13 = creerProduit("Persil", 20, a, 13), *p14 = creerProduit("Dash", 17, c, 90);
+	T_Produit *p15 = creerProduit("Mir", 10, a, 45);
 	ajouterProduit(r1, p1);
 	ajouterProduit(r1, p2);
 	ajouterProduit(r1, p3);
 	ajouterProduit(r1, p4);
 	ajouterProduit(r2, p6);
-	ajouterProduit(r3, p7);
-	ajouterProduit(r3, p8);
+	ajouterProduit(r2, p7);
+	ajouterProduit(r2, p8);
+	ajouterProduit(r3, p9);
+	ajouterProduit(r3, p10);
+	ajouterProduit(r3, p11);
+	ajouterProduit(r4, p12);
+	ajouterProduit(r4, p13);
+	ajouterProduit(r4, p14);
+	ajouterProduit(r4, p15);
 	return magasin;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
