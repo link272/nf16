@@ -1,3 +1,6 @@
+# include "tp4.c"
+# include "tp4.h"
+# include "tp4_cli.c"
 
 int afficherMenu(){
 
