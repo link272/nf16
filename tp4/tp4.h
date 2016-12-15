@@ -58,6 +58,12 @@ Benevole * insererBen(Tranche * racine , Benevole * benevole);
 //2.4 
 Benevole * chercherBen(Tranche * racine, int CIN, int annee);
 
+//2.5
+int supprimerBen(Tranche * racine , int CIN , int annee);
+
+//2.6
+int supprimerTranche (Tranche * racine , int borneSup);
+
 //pas forcément initialisé arbre et ajouté tranche dans le menu
 //faire gaffe à la racine que l'on ne peut pas modifier 
 //passer avec les doubles pointeurs
