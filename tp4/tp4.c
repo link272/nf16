@@ -64,27 +64,26 @@ ListBenevoles * nouvelleListe (){
 
 //2.2
 Tranche * ajoutTranche (Tranche ** racine , int borneSup){
-
+	//printf("Ajout d'une tranche : %d",borneSup);
 	//Si l'arbre est vide on initialise la racine
-	if (racine == NULL){
+	if (*racine == NULL){
 		*racine = nouvelleTranche(borneSup);
 		return *racine;
 	} 
 
-	Tranche * actuel = *racine, *precedent = actuel;
+	Tranche * actuel = *racine, *pere = actuel;
 	while (actuel != NULL){
 
 		//Si la borne existe déjà
 		if (actuel -> borneSup == borneSup) return actuel;
 
 		//Sinon on parcours
-		if (actuel -> borneSup > borneSup){
-			precedent = actuel;
+		else if (borneSup < actuel -> borneSup){
+			pere = actuel;
 			actuel = actuel -> filsG;
 		}
-
-		if (actuel -> borneSup < borneSup){
-			precedent = actuel;
+		else{
+			pere = actuel;
 			actuel = actuel -> filsD;
 		} 	
 	}
@@ -93,21 +92,23 @@ Tranche * ajoutTranche (Tranche ** racine , int borneSup){
 	//est déjà sorti, soit actuel == NULL
 
 	Tranche * newTranche = nouvelleTranche(borneSup);
-	newTranche -> pere = precedent;
+	newTranche -> pere = pere;
 
-	if (precedent -> borneSup < borneSup) 
-		precedent -> filsG = newTranche;
-	else 
-		precedent -> filsD = newTranche;
+	if (borneSup < pere -> borneSup){
+		pere -> filsG = newTranche;
+	} 
+	else{
+		pere -> filsD = newTranche;
+	}
 
 	return newTranche;
 }
 
 //2.3
-Benevole * insererBen(Tranche * racine , Benevole * benevole){
-	
+Benevole * insererBen(Tranche ** racine , Benevole * benevole){
+	//printf("Ajout du bénévole : %s",benevole -> prenom);
 	int borneSup = borneSuperieure(benevole -> annee);
-	Tranche * trancheActuelle = ajoutTranche (&racine, borneSup);
+	Tranche * trancheActuelle = ajoutTranche (racine, borneSup);
 
 	Benevole* actuel=trancheActuelle -> liste -> premier, *precedent;
 	
@@ -134,7 +135,10 @@ Benevole * insererBen(Tranche * racine , Benevole * benevole){
 	//Vérif existance 
 	Benevole* tmp= actuel;
 	while (tmp != NULL && tmp -> annee == benevole -> annee){
-		if (tmp -> CIN == benevole -> CIN) return tmp;
+		if (tmp -> CIN == benevole -> CIN) {
+			printf("Désolé, un Bénévole nait la même année et ayant le même CIN est déjà présent dans la base.\n");
+			return tmp;
+		}
 		tmp = tmp -> suivant;
 	}
 
@@ -162,7 +166,7 @@ Benevole * chercherBen(Tranche * racine, int CIN, int annee){
 
 	Tranche* trancheActuelle=racine;
 	int trouve = 0;
-	while (trancheActuelle -> borneSup != borneSup && !trouve){
+	while (trancheActuelle != NULL && trancheActuelle -> borneSup != borneSup && trouve==0){
 		if (trancheActuelle -> borneSup == borneSup) trouve = 1;
 		if (borneSup < trancheActuelle -> borneSup) 
 			trancheActuelle = trancheActuelle -> filsG;
@@ -193,7 +197,7 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 
 	Tranche* trancheActuelle=racine;
 	int trouve = 0;
-	while (trancheActuelle -> borneSup != borneSup && !trouve){
+	while (trancheActuelle != NULL && trancheActuelle -> borneSup != borneSup && !trouve){
 		if (trancheActuelle -> borneSup == borneSup) trouve = 1;
 		if (borneSup < trancheActuelle -> borneSup) 
 			trancheActuelle = trancheActuelle -> filsG;
@@ -473,13 +477,30 @@ void afficherArbre (Tranche * racine){
 }
 
 
+void testing(Tranche *** racineReal){
+	Tranche ** racine=*racineReal;
+	
+	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1996);
+	Benevole * ben2=nouveauBen("Timothée","Chehab", 201 , 'M', 1997);
+	Benevole * ben3=nouveauBen("Julie","Chehab", 202 , 'F', 1998);
+
+	insererBen(racine,ben3);
+	insererBen(racine,ben1);
+	insererBen(racine,ben1);
+	insererBen(racine,ben2);
+}
 
 int main(int argc, char const *argv[])
 {
-	Tranche * racine = NULL;
+	Tranche ** racine;
+	*racine = NULL;
 
-	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1996);
 
-	//insererBen(racine,ben1);
+	testing(&racine);
+
+	//printf("%d\n",(*racine) -> borneSup);
+	
+	afficherArbre (*racine);
+	afficherTranche(*racine,20);
 	return 0;
 }
