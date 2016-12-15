@@ -159,15 +159,15 @@ Benevole * insererBen(Tranche ** racine , Benevole * benevole){
 }
 
 //2.4
+//Fonction inutile...
 Benevole * chercherBen(Tranche * racine, int CIN, int annee){
 	int borneSup = borneSuperieure(annee);
 
 	if (racine == NULL) return NULL;
 
 	Tranche* trancheActuelle=racine;
-	int trouve = 0;
-	while (trancheActuelle != NULL && trancheActuelle -> borneSup != borneSup && trouve==0){
-		if (trancheActuelle -> borneSup == borneSup) trouve = 1;
+	
+	while (trancheActuelle != NULL && trancheActuelle -> borneSup != borneSup){
 		if (borneSup < trancheActuelle -> borneSup) 
 			trancheActuelle = trancheActuelle -> filsG;
 		else
@@ -175,7 +175,7 @@ Benevole * chercherBen(Tranche * racine, int CIN, int annee){
 	}
 
 	//Si la tranche n'existe pas on sort
-	if (trouve == 0) return NULL;
+	if (trancheActuelle -> borneSup != borneSup) return NULL;
 
 	Benevole* actuel = trancheActuelle -> liste -> premier;
 
@@ -296,6 +296,7 @@ int suppressionListe(ListBenevoles* liste){
 	}
 
 	//On supprime la liste :
+	//liste=NULL;
 	free (liste);
 	return 0;
 }
@@ -305,24 +306,32 @@ int suppression(Tranche* actuelle){
 
 	//Feuille
 	if (actuelle -> filsG == NULL && actuelle -> filsD == NULL){
-		if (actuelle == pere -> filsG) pere->filsG =NULL;
-		else pere -> filsD == NULL;
+		if (pere != NULL){
+			if (actuelle == pere -> filsG) pere->filsG =NULL;
+			else pere -> filsD == NULL;
+		}
+		//pour éviter les erreurs de segmentations malgré la free mémoire
+		actuelle=NULL;
 		free(actuelle);
 		return 0;
 	}
 
 	//Intermédiaire
 	if (actuelle -> filsD == NULL && actuelle -> filsG != NULL){
-		if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsG;
-		else pere -> filsD = actuelle -> filsG;
+		if (pere != NULL){
+			if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsG;
+			else pere -> filsD = actuelle -> filsG;
+		}
 		actuelle -> filsG -> pere = pere;
 		free(actuelle);
 		return 0;
 	}
 	
 	if (actuelle -> filsD != NULL && actuelle -> filsG == NULL){
-		if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsD;
-		else pere -> filsD = actuelle -> filsD;
+		if (pere != NULL){
+			if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsD;
+			else pere -> filsD = actuelle -> filsD;
+		}
 		actuelle -> filsG -> pere = pere;
 		free(actuelle);
 		return 0;
@@ -485,7 +494,6 @@ void testing(Tranche *** racineReal){
 
 	insererBen(racine,ben3);
 	insererBen(racine,ben1);
-	insererBen(racine,ben1);
 	insererBen(racine,ben2);
 }
 
@@ -496,14 +504,14 @@ int main(int argc, char const *argv[])
 
 
 	testing(&racine);
-
-	//printf("%d\n",(*racine) -> borneSup);
 	
 	afficherArbre (*racine);
 	afficherTranche(*racine,20);
 	printf("SUPPPRESSION\n");
-	printf("%d\n",supprimerBen(*racine ,200,1996));
+	printf("%d\n",supprimerTranche(*racine ,20));
 
 	afficherTranche(*racine,20);
+	afficherArbre (*racine);
+
 	return 0;
 }
