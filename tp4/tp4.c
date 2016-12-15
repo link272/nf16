@@ -184,6 +184,7 @@ Benevole * chercherBen(Tranche * racine, int CIN, int annee){
 };
 
 
+//2.6
 int supprimerBen(Tranche * racine , int CIN , int annee){
 	int borneSup = borneSuperieure(annee);
 
@@ -238,6 +239,105 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 	
 }
 
+int supprimerTranche (Tranche * racine , int borneSup){
+
+	if (racine == NULL) return 1;
+
+	Tranche* actuelle=racine;
+
+	while (actuelle != NULL && actuelle -> borneSup != borneSup){
+		if (borneSup < actuelle -> borneSup ) 
+			actuelle = actuelle -> filsG;
+		else
+			actuelle = actuelle -> filsD;
+	}
+
+	//si on ne l'a pas trouvée
+	if (actuelle == NULL) return 1;
+
+	ListBenevoles* liste = actuelle -> liste;
+	Benevole* benevole = liste -> premier,*tmp;
+
+	//On supprime les bénévoles
+	while (benevole != NULL){
+		tmp = benevole;
+		benevole = benevole -> suivant;
+		free(tmp);
+	}
+
+	//On supprime la liste :
+	free (liste);
+
+	//on rétabli l'arbre
+	if (suppression(actuelle) == 0) return 0;
+	return 1;
+}
+
+int suppression(Tranche* actuelle){
+	Tranche* pere = actuelle -> pere;
+
+	//Feuille
+	if (actuelle -> filsG == NULL && actuelle -> filsD == NULL){
+		if (actuelle == pere -> filsG) pere->filsG =NULL;
+		else pere -> filsD == NULL;
+		free(actuelle);
+		return 0;
+	}
+
+	//Intermédiaire
+	if (actuelle -> filsD == NULL && actuelle -> filsG != NULL){
+		if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsG;
+		else pere -> filsD = actuelle -> filsG;
+		actuelle -> filsG -> pere = pere;
+		free(actuelle);
+		return 0;
+	}
+	
+	if (actuelle -> filsD != NULL && actuelle -> filsG == NULL){
+		if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsD;
+		else pere -> filsD = actuelle -> filsD;
+		actuelle -> filsG -> pere = pere;
+		free(actuelle);
+		return 0;
+	}
+
+	//total
+	if (actuelle -> filsD != NULL && actuelle -> filsG != NULL){
+
+		Tranche * succ=successeur(actuelle);
+		
+		//on copie les infos du successeur
+		actuelle -> liste = succ -> liste;
+		actuelle -> borneSup = succ -> borneSup;
+
+		//pas de raccord à faire à priori
+
+		return suppression(succ) + 0;
+	}
+
+	return 1;
+
+}
+
+Tranche * successeur(Tranche* actuelle){
+	if (actuelle -> filsD != NULL) return minimum_ABR(actuelle -> filsD);
+
+	Tranche* pere = actuelle -> pere,*fils = actuelle;
+
+	while ( pere != NULL && fils == pere -> filsD){
+		fils = pere;
+		pere = fils -> pere;
+	}
+
+	return pere;
+}
+
+Tranche* minimum_ABR(Tranche* actuelle){
+	Tranche* tmp =actuelle;
+	while (tmp -> filsG != NULL) tmp = tmp -> filsG;
+	return tmp;
+}
+	
 int main(int argc, char const *argv[])
 {
 	/* code */
