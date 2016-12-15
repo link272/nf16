@@ -26,7 +26,7 @@ int afficherMenu(){
 }
 
 void main(){
-	T_Magasin *magasin;
+	T_Tranche *magasin;
 	int state = 1;
 	magasin = testing();
 	printf("##########################################################\n");
@@ -36,8 +36,8 @@ void main(){
     while(state){
         switch(afficherMenu()){
             case 1:
-            	viderMagasin(magasin);
-                magasin = creerMagasinWrapper();
+            	viderArbre(arbre);
+                magasin = inittreeCLI();
                 break;
             case 2:
             	ajouterRayonWrapper(magasin);
