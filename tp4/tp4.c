@@ -196,9 +196,8 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 	if (racine == NULL) return 1;
 
 	Tranche* trancheActuelle=racine;
-	int trouve = 0;
-	while (trancheActuelle != NULL && trancheActuelle -> borneSup != borneSup && !trouve){
-		if (trancheActuelle -> borneSup == borneSup) trouve = 1;
+	
+	while (trancheActuelle != NULL && trancheActuelle -> borneSup != borneSup){
 		if (borneSup < trancheActuelle -> borneSup) 
 			trancheActuelle = trancheActuelle -> filsG;
 		else
@@ -206,7 +205,7 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 	}
 
 	//Si la tranche n'existe pas on sort
-	if (trouve == 0) return 1;
+	if (trancheActuelle -> borneSup != borneSup) return 1;
 
 	Benevole* premier = trancheActuelle -> liste -> premier, *actuel = premier, *precedent = actuel;
 
@@ -244,7 +243,7 @@ int suppressionBen(Benevole* actuel, Benevole* precedent, Tranche* trancheActuel
 		return 0;
 	}
 	else{//on est à la fin de la liste
-		precedent -> suivant == NULL;
+		precedent -> suivant = NULL;
 		free(actuel);
 		trancheActuelle -> liste -> NbreElements --;
 		return 0;
@@ -501,6 +500,10 @@ int main(int argc, char const *argv[])
 	//printf("%d\n",(*racine) -> borneSup);
 	
 	afficherArbre (*racine);
+	afficherTranche(*racine,20);
+	printf("SUPPPRESSION\n");
+	printf("%d\n",supprimerBen(*racine ,200,1996));
+
 	afficherTranche(*racine,20);
 	return 0;
 }
