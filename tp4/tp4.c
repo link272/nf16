@@ -57,7 +57,7 @@ ListBenevoles * nouvelleListe (){
 	ListBenevoles* newListe = (ListBenevoles*) malloc(sizeof(ListBenevoles));
 
 	newListe -> premier = NULL;
-	int NbreElements = 0;
+	newListe -> NbreElements = 0;
 
 	return newListe;
 }
@@ -190,12 +190,12 @@ Benevole * chercherBen(Tranche * racine, int CIN, int annee){
 
 
 //2.5
-int supprimerBen(Tranche * racine , int CIN , int annee){
+int supprimerBen(Tranche ** racine , int CIN , int annee){
 	int borneSup = borneSuperieure(annee);
 
-	if (racine == NULL) return 1;
+	if (*racine == NULL) return 1;
 
-	Tranche* trancheActuelle=racine;
+	Tranche* trancheActuelle=*racine;
 	
 	while (trancheActuelle != NULL && trancheActuelle -> borneSup != borneSup){
 		if (borneSup < trancheActuelle -> borneSup) 
@@ -222,7 +222,14 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 	if (actuel == NULL) return 1;
 
 	//Si on l'a trouvé, on le supprime
-	return suppressionBen(actuel,precedent,trancheActuelle);
+	int a = suppressionBen(actuel,precedent,trancheActuelle);
+
+	//on supprime la tranche si elle est vide !
+	
+	if (a==0 && trancheActuelle -> liste -> NbreElements == 0){
+		a=a+supprimerTranche (racine,trancheActuelle -> borneSup);
+	}
+	return a;
 }
 
 int suppressionBen(Benevole* actuel, Benevole* precedent, Tranche* trancheActuelle){	
@@ -233,7 +240,6 @@ int suppressionBen(Benevole* actuel, Benevole* precedent, Tranche* trancheActuel
 		free(actuel);
 		trancheActuelle -> liste -> NbreElements --;
 		//si la liste résultante est vide, on supprime la classe d'âche de l'arbre
-		if (trancheActuelle -> liste -> premier == NULL) supprimerTranche(trancheActuelle,trancheActuelle->borneSup);
 		return 0;
 	}
 	else if (actuel -> suivant != NULL){
@@ -253,20 +259,19 @@ int suppressionBen(Benevole* actuel, Benevole* precedent, Tranche* trancheActuel
 
 
 //2.6
-int supprimerTranche (Tranche * racine , int borneSup){
+int supprimerTranche (Tranche ** racine , int borneSup){
 
-	if (racine == NULL) return 1;
+	if (*racine == NULL) return 1;
 
-	Tranche* actuelle=rechercherTranche(racine, borneSup);
+	Tranche* actuelle=rechercherTranche(*racine, borneSup);
 
 	//si on ne l'a pas trouvée
 	if (actuelle == NULL) return 1;
 
 	if (suppressionListe(actuelle -> liste)==1) return 1;
-	
 
 	//on rétabli l'arbre
-	if (suppression(actuelle) == 0) return 0;
+	if (suppression(actuelle,racine) == 0) return 0;
 	return 1;
 }
 
@@ -276,10 +281,12 @@ Tranche* rechercherTranche(Tranche* racine, int borneSup){
 	Tranche* actuelle=racine;
 
 	while (actuelle != NULL && actuelle -> borneSup != borneSup){
-		if (borneSup < actuelle -> borneSup ) 
+		if (borneSup < actuelle -> borneSup ){
 			actuelle = actuelle -> filsG;
-		else
+		} 
+		else{
 			actuelle = actuelle -> filsD;
+		}
 	}
 
 	return actuelle;
@@ -301,58 +308,94 @@ int suppressionListe(ListBenevoles* liste){
 	return 0;
 }
 
-int suppression(Tranche* actuelle){
+int suppression(Tranche* actuelle, Tranche ** racine){
 	Tranche* pere = actuelle -> pere;
-
-	//Feuille
-	if (actuelle -> filsG == NULL && actuelle -> filsD == NULL){
-		if (pere != NULL){
+	//on est obligé de dédoubler pour ne pas avoir de problème avec les mises à jour de racine...
+	//si ce n'est pas la racine :
+	if (actuelle!=*racine){
+		//Feuille
+		if (actuelle -> filsG == NULL && actuelle -> filsD == NULL){
 			if (actuelle == pere -> filsG) pere->filsG =NULL;
 			else pere -> filsD == NULL;
+			//pour éviter les erreurs de segmentations malgré la free mémoire
+			actuelle=NULL;
+			free(actuelle);
+			return 0;
 		}
-		//pour éviter les erreurs de segmentations malgré la free mémoire
-		actuelle=NULL;
-		free(actuelle);
-		return 0;
-	}
 
-	//Intermédiaire
-	if (actuelle -> filsD == NULL && actuelle -> filsG != NULL){
-		if (pere != NULL){
+		//Intermédiaire
+		if (actuelle -> filsD == NULL && actuelle -> filsG != NULL){
 			if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsG;
 			else pere -> filsD = actuelle -> filsG;
+
+			actuelle -> filsG -> pere = pere;
+			free(actuelle);
+			return 0;
 		}
-		actuelle -> filsG -> pere = pere;
-		free(actuelle);
-		return 0;
-	}
-	
-	if (actuelle -> filsD != NULL && actuelle -> filsG == NULL){
-		if (pere != NULL){
+		
+		if (actuelle -> filsD != NULL && actuelle -> filsG == NULL){
 			if (actuelle == pere -> filsG) pere -> filsG = actuelle -> filsD;
 			else pere -> filsD = actuelle -> filsD;
+
+			actuelle -> filsD -> pere = pere;
+			free(actuelle);
+			return 0;
 		}
-		actuelle -> filsG -> pere = pere;
-		free(actuelle);
-		return 0;
+
+		//total
+		if (actuelle -> filsD != NULL && actuelle -> filsG != NULL){
+
+			Tranche * succ=successeur(actuelle);
+			
+			//on copie les infos du successeur
+			actuelle -> liste = succ -> liste;
+			actuelle -> borneSup = succ -> borneSup;
+
+			//pas de raccord à faire à priori
+
+			return suppression(succ,racine) + 0;
+		}
+
+		return 1;
 	}
+	else{
+		//Si c'est la racine que l'on supprime
+		//feuille
+		if (actuelle -> filsG == NULL && actuelle -> filsD == NULL){
+			free(*racine);
+			*racine=NULL;
+			return 0;
+		}
 
-	//total
-	if (actuelle -> filsD != NULL && actuelle -> filsG != NULL){
+		//intermédiaire :
+		if (actuelle -> filsD == NULL && actuelle -> filsG != NULL){
+			Tranche * tmp = actuelle -> filsG;
+			free(*racine);
+			*racine=tmp;
+			return 0;
+		}
 
-		Tranche * succ=successeur(actuelle);
-		
-		//on copie les infos du successeur
-		actuelle -> liste = succ -> liste;
-		actuelle -> borneSup = succ -> borneSup;
+		if (actuelle -> filsG == NULL && actuelle -> filsD != NULL){
+			Tranche * tmp = actuelle -> filsD;
+			free(*racine);
+			*racine=tmp;
+			return 0;
+		}
 
-		//pas de raccord à faire à priori
+		//Total
+		if (actuelle -> filsD != NULL && actuelle -> filsG != NULL){
 
-		return suppression(succ) + 0;
+				Tranche * succ=successeur(actuelle);
+				
+				//on copie les infos du successeur
+				(*racine) -> liste = succ -> liste;
+				(*racine) -> borneSup = succ -> borneSup;
+
+				return suppression(succ,racine) + 0;
+			}
+
 	}
-
 	return 1;
-
 }
 
 Tranche * successeur(Tranche* actuelle){
@@ -463,12 +506,18 @@ float pourcentageTranche (Tranche * racine , int borneSup){
 void afficherTranche (Tranche * racine , int borneSup){
 	Tranche * actuelle = rechercherTranche (racine,borneSup);
 
-	Benevole* ben = actuelle -> liste -> premier;
+	if (actuelle != NULL){
+		Benevole* ben = actuelle -> liste -> premier;
 
-	while(ben != NULL){
-		afficherBenevole(ben);
-		ben = ben -> suivant;
+		while(ben != NULL){
+			afficherBenevole(ben);
+			ben = ben -> suivant;
+		}
 	}
+	else{
+		printf("Aucune tranche ne correspond\n");
+	}
+	
 }
 
 void afficherBenevole (Benevole* ben){
@@ -488,13 +537,13 @@ void afficherArbre (Tranche * racine){
 void testing(Tranche *** racineReal){
 	Tranche ** racine=*racineReal;
 	
-	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1996);
-	Benevole * ben2=nouveauBen("Timothée","Chehab", 201 , 'M', 1997);
+	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1978);
+	Benevole * ben2=nouveauBen("Timothée","Chehab", 201 , 'M', 1983);
 	Benevole * ben3=nouveauBen("Julie","Chehab", 202 , 'F', 1998);
 
+	insererBen(racine,ben2);
 	insererBen(racine,ben3);
 	insererBen(racine,ben1);
-	insererBen(racine,ben2);
 }
 
 int main(int argc, char const *argv[])
@@ -507,11 +556,19 @@ int main(int argc, char const *argv[])
 	
 	afficherArbre (*racine);
 	afficherTranche(*racine,20);
-	printf("SUPPPRESSION\n");
-	printf("%d\n",supprimerTranche(*racine ,20));
 
-	afficherTranche(*racine,20);
+	
+	printf("SUPPPRESSION\n");
+	//printf("%d\n",supprimerTranche(racine ,20));
+	
+	printf("%d\n",supprimerBen(racine , 202 , 1998));
 	afficherArbre (*racine);
+
+	//printf("%d\n",(*racine)->borneSup);
+	//afficherTranche(*racine,20);
+	/*printf("%d\n",totalBen(*racine));
+	
+	*/
 
 	return 0;
 }
