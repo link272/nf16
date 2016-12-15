@@ -100,3 +100,5 @@ void testing(Tranche *** racine);
 //passer avec les doubles pointeurs
 
 //penser à supprimer la liste des benevoles d'honneur !
+
+//A débugger : supprimer une tranche qui est la racine (et la seule tranche de l'arbre)
