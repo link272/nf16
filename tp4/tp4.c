@@ -245,14 +245,7 @@ int supprimerTranche (Tranche * racine , int borneSup){
 
 	if (racine == NULL) return 1;
 
-	Tranche* actuelle=racine;
-
-	while (actuelle != NULL && actuelle -> borneSup != borneSup){
-		if (borneSup < actuelle -> borneSup ) 
-			actuelle = actuelle -> filsG;
-		else
-			actuelle = actuelle -> filsD;
-	}
+	Tranche* actuelle=rechercherTranche(racine, borneSup);
 
 	//si on ne l'a pas trouvée
 	if (actuelle == NULL) return 1;
@@ -263,6 +256,21 @@ int supprimerTranche (Tranche * racine , int borneSup){
 	//on rétabli l'arbre
 	if (suppression(actuelle) == 0) return 0;
 	return 1;
+}
+
+Tranche* rechercherTranche(Tranche* racine, int borneSup){
+	if (racine == NULL) return NULL;
+
+	Tranche* actuelle=racine;
+
+	while (actuelle != NULL && actuelle -> borneSup != borneSup){
+		if (borneSup < actuelle -> borneSup ) 
+			actuelle = actuelle -> filsG;
+		else
+			actuelle = actuelle -> filsD;
+	}
+
+	return actuelle;
 }
 
 int suppressionListe(ListBenevoles* liste){
@@ -392,6 +400,60 @@ Tranche* maximum_ABR(Tranche* actuelle){
 	while (tmp -> filsD != NULL) tmp = tmp -> filsD;
 	return tmp;
 }
+
+
+//2.9
+int totalBenTranche (Tranche * racine , int borneSup){
+	Tranche * actuelle = rechercherTranche (racine,borneSup);
+
+	//la recherche n'a rien donnée
+	if (actuelle == NULL){
+		printf("Erreure lors de la recherche, pas de tranches correspondante!\n");
+		return -1;
+	} 
+
+	//sinon
+	return actuelle -> liste -> NbreElements;
+}
+
+int totalBen(Tranche * racine){
+	//en récursif
+	if (racine == NULL) return 0;
+
+	return racine -> liste -> NbreElements + totalBen(racine -> filsD) + totalBen(racine -> filsG);
+}
+
+float pourcentageTranche (Tranche * racine , int borneSup){
+	return (float) 100 * totalBenTranche(racine,borneSup)/totalBen(racine);
+}
+
+
+//2.10
+void afficherTranche (Tranche * racine , int borneSup){
+	Tranche * actuelle = rechercherTranche (racine,borneSup);
+
+	Benevole* ben = actuelle -> liste -> premier;
+
+	while(ben != NULL){
+		afficherBenevole(ben);
+		ben = ben -> suivant;
+	}
+}
+
+void afficherBenevole (Benevole* ben){
+	printf("nom : %s, prenom : %s, sexe : %c, CIN : %d, age : %d\n",ben->nom,ben->prenom,ben->sexe,ben->CIN,anneeActuelle ()-ben->annee);
+}
+
+void afficherArbre (Tranche * racine){
+	//récursif
+	if (racine == NULL) return;
+
+	afficherArbre(racine->filsG);
+	printf("Borne : %d\n", racine -> borneSup );
+	afficherArbre(racine -> filsD);
+}
+
+
 
 int main(int argc, char const *argv[])
 {
