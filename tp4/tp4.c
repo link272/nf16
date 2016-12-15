@@ -62,16 +62,16 @@ ListBenevoles * nouvelleListe (){
 	return newListe;
 }
 
-
-Tranche * ajoutTranche (Tranche * racine , int borneSup){
+//2.2
+Tranche * ajoutTranche (Tranche ** racine , int borneSup){
 
 	//Si l'arbre est vide on initialise la racine
 	if (racine == NULL){
-		racine = nouvelleTranche(borneSup);
-		return racine;
+		*racine = nouvelleTranche(borneSup);
+		return *racine;
 	} 
 
-	Tranche * actuel = racine, *precedent = actuel;
+	Tranche * actuel = *racine, *precedent = actuel;
 	while (actuel != NULL){
 
 		//Si la borne existe déjà
@@ -103,11 +103,11 @@ Tranche * ajoutTranche (Tranche * racine , int borneSup){
 	return newTranche;
 }
 
-
+//2.3
 Benevole * insererBen(Tranche * racine , Benevole * benevole){
 	
 	int borneSup = borneSuperieure(benevole -> annee);
-	Tranche * trancheActuelle = ajoutTranche (racine, borneSup);
+	Tranche * trancheActuelle = ajoutTranche (&racine, borneSup);
 
 	Benevole* actuel=trancheActuelle -> liste -> premier, *precedent;
 	
@@ -154,6 +154,7 @@ Benevole * insererBen(Tranche * racine , Benevole * benevole){
 	}
 }
 
+//2.4
 Benevole * chercherBen(Tranche * racine, int CIN, int annee){
 	int borneSup = borneSuperieure(annee);
 
@@ -184,7 +185,7 @@ Benevole * chercherBen(Tranche * racine, int CIN, int annee){
 };
 
 
-//2.6
+//2.5
 int supprimerBen(Tranche * racine , int CIN , int annee){
 	int borneSup = borneSuperieure(annee);
 
@@ -217,6 +218,12 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 	//On ne l'a pas trouve.
 	if (actuel == NULL) return 1;
 
+	//Si on l'a trouvé, on le supprime
+	return suppressionBen(actuel,precedent,trancheActuelle);
+}
+
+int suppressionBen(Benevole* actuel, Benevole* precedent, Tranche* trancheActuelle){	
+	Benevole* premier = trancheActuelle -> liste -> premier;
 	if (actuel == premier){
 		//on est au début de la liste
 		trancheActuelle -> liste -> premier = premier -> suivant;
@@ -238,9 +245,11 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 		trancheActuelle -> liste -> NbreElements --;
 		return 0;
 	}
-	
+	return 1;
 }
 
+
+//2.6
 int supprimerTranche (Tranche * racine , int borneSup){
 
 	if (racine == NULL) return 1;
@@ -401,6 +410,16 @@ Tranche* maximum_ABR(Tranche* actuelle){
 	return tmp;
 }
 
+//2.8
+int actualiser(Tranche * racine){
+	int nbActu=0;
+
+	int quelleBorne;
+
+
+	return nbActu;
+}
+
 
 //2.9
 int totalBenTranche (Tranche * racine , int borneSup){
@@ -457,6 +476,10 @@ void afficherArbre (Tranche * racine){
 
 int main(int argc, char const *argv[])
 {
-	/* code */
+	Tranche * racine = NULL;
+
+	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1996);
+
+	//insererBen(racine,ben1);
 	return 0;
 }
