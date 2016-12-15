@@ -12,7 +12,7 @@ typedef struct Benevole {
 	char nom[TAILLENOM];
 	char prenom[TAILLEPRENOM];
 	char sexe;
-	char CIN;
+	int CIN;
 	int annee;
 	struct Benevole* suivant;
 } Benevole;
@@ -49,7 +49,7 @@ Tranche * nouvelleTranche (int borneSup);
 ListBenevoles * nouvelleListe ();
 
 //2.2
-Tranche * ajoutTranche (Tranche * racine , int borneSup);
+Tranche * ajoutTranche (Tranche ** racine , int borneSup);
 
 //2.3
 Benevole * insererBen(Tranche * racine , Benevole * benevole);
@@ -60,9 +60,11 @@ Benevole * chercherBen(Tranche * racine, int CIN, int annee);
 
 //2.5
 int supprimerBen(Tranche * racine , int CIN , int annee);
+int suppressionBen(Benevole* actuel, Benevole* precedent,Tranche* trancheActuelle);
 
 //2.6
 int supprimerTranche (Tranche * racine , int borneSup);
+Tranche* rechercherTranche(Tranche* racine, int borneSup);
 int suppressionListe(ListBenevoles* liste);
 int suppression(Tranche* actuelle);
 Tranche * successeur(Tranche* actuelle);
@@ -72,6 +74,25 @@ Tranche * minimum_ABR(Tranche* actuelle);
 ListBenevoles * BenDhonneur(Tranche * racine);
 Tranche* maximum_ABR(Tranche* actuelle);
 Benevole* copierBenevole(Benevole * ben);
+
+
+//2.8 
+
+
+
+//2.9
+int totalBenTranche (Tranche * racine , int borneSup);
+int totalBen(Tranche * racine);
+float pourcentageTranche (Tranche * racine , int borneSup);
+
+//2.10
+void afficherTranche (Tranche * racine , int borneSup);
+void afficherBenevole (Benevole* ben);
+
+//2.11
+void afficherArbre (Tranche * racine);
+
+
 
 //pas forcément initialisé arbre et ajouté tranche dans le menu
 //faire gaffe à la racine que l'on ne peut pas modifier 
