@@ -39,7 +39,7 @@ struct Tranche{
 int anneeActuelle ();
 
 // Déterminer la borne sup de la tranche d'âge d'appartenance
-int borneSup(int annee);
+int borneSuperieure(int annee);
 
 
 
@@ -52,7 +52,7 @@ ListBenevoles * nouvelleListe ();
 Tranche * ajoutTranche (Tranche ** racine , int borneSup);
 
 //2.3
-Benevole * insererBen(Tranche * racine , Benevole * benevole);
+Benevole * insererBen(Tranche ** racine , Benevole * benevole);
 
 
 //2.4 
@@ -93,6 +93,7 @@ void afficherBenevole (Benevole* ben);
 void afficherArbre (Tranche * racine);
 
 
+void testing(Tranche *** racine);
 
 //pas forcément initialisé arbre et ajouté tranche dans le menu
 //faire gaffe à la racine que l'on ne peut pas modifier 
