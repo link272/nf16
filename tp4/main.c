@@ -17,7 +17,7 @@ int afficherMenu(){
     printf("10.Actualiser l’ABR\n");
     printf("11.Afficher le pourcentage de bénévoles d’une tranche d’âge\n");
     printf("12.Détruire l’arbre\n");
-    printf("10.Quitter\n\n");
+    printf("13.Quitter\n\n");
     printf("Exprimer votre choix: ");
     scanf("%d", &choix);
     viderBuffer();
@@ -26,45 +26,54 @@ int afficherMenu(){
 }
 
 void main(){
-	T_Tranche *magasin;
+	T_Tranche *arbre;
 	int state = 1;
-	magasin = testing();
+	arbre = testing();
 	printf("##########################################################\n");
-   	printf("Un magasin suivant le protocole d'évaluation a été chargé.\n");
+   	printf("Un arbre suivant le protocole d'évaluation a été chargé.\n");
     	printf("##########################################################\n");
 
     while(state){
         switch(afficherMenu()){
             case 1:
             	viderArbre(arbre);
-                magasin = inittreeCLI();
+                arbre = initArbreCLI();
                 break;
             case 2:
-            	ajouterRayonWrapper(magasin);
+            	ajouterTrancheCLI(arbre);
                 break;
             case 3:
-                ajouterProduitWrapper(magasin);
+                ajouterBenCLI(arbre);
                 break;
             case 4:
-                afficherMagasinWrapper(magasin);
+                afficherTrancheCLI(arbre);
                 break;
             case 5:
-                afficherRayonWrapper(magasin);
+                afficherBenCLI(arbre);
                 break;
             case 6:
-                supprimerProduitWrapper(magasin);
+                supprimerBenCLI(arbre);
                 break;
             case 7:
-                supprimerRayonWrapper(magasin);
+                supprimerTrancheCLI(arbre);
                 break;
             case 8:
-                rechercheProduitsWrapper(magasin);
+                AfficherBestBenCLI(arbre);
                 break;
             case 9:
-            	fusionnerRayonsWrapper(magasin);
+            	ActualiserArbre(arbre);
             	break;
             case 10:
-            	viderMagasin(magasin);
+                AfficherPercentBen(arbre);
+                break;
+            case 11:
+                AfficherBestBenCLI(abre);
+                break;
+            case 12:
+                ViderArbre(arbre);
+                break;
+            case 13:
+            	viderArbre(arbre);
                 state = 0;
                 break;
             default: 
