@@ -222,6 +222,8 @@ int supprimerBen(Tranche * racine , int CIN , int annee){
 		trancheActuelle -> liste -> premier = premier -> suivant;
 		free(actuel);
 		trancheActuelle -> liste -> NbreElements --;
+		//si la liste résultante est vide, on supprime la classe d'âche de l'arbre
+		if (trancheActuelle -> liste -> premier == NULL) supprimerTranche(trancheActuelle,trancheActuelle->borneSup);
 		return 0;
 	}
 	else if (actuel -> suivant != NULL){
@@ -255,7 +257,15 @@ int supprimerTranche (Tranche * racine , int borneSup){
 	//si on ne l'a pas trouvée
 	if (actuelle == NULL) return 1;
 
-	ListBenevoles* liste = actuelle -> liste;
+	if (suppressionListe(actuelle -> liste)==1) return 1;
+	
+
+	//on rétabli l'arbre
+	if (suppression(actuelle) == 0) return 0;
+	return 1;
+}
+
+int suppressionListe(ListBenevoles* liste){
 	Benevole* benevole = liste -> premier,*tmp;
 
 	//On supprime les bénévoles
@@ -267,10 +277,7 @@ int supprimerTranche (Tranche * racine , int borneSup){
 
 	//On supprime la liste :
 	free (liste);
-
-	//on rétabli l'arbre
-	if (suppression(actuelle) == 0) return 0;
-	return 1;
+	return 0;
 }
 
 int suppression(Tranche* actuelle){
@@ -337,7 +344,55 @@ Tranche* minimum_ABR(Tranche* actuelle){
 	while (tmp -> filsG != NULL) tmp = tmp -> filsG;
 	return tmp;
 }
+
+
+//2.7
+ListBenevoles * BenDhonneur(Tranche * racine){
+	Tranche * trancheMax = maximum_ABR(racine);
+
+	int anneeMAX;
+	//on ne peut avoir de tranche vide (voir fonctions précédentes)
+	Benevole * ben = trancheMax -> liste -> premier;
+
+	while (ben -> suivant != NULL) ben = ben-> suivant;
+	//on récupère l'année du plus âgé
+	anneeMAX = ben -> annee;
+
+	//on récupère ceux nait cette année.
+
+	ListBenevoles * listHonneur = nouvelleListe();
+
+	ben = trancheMax -> liste -> premier;
+	Benevole* benTMP;
+	while (ben != NULL){
+		if (ben -> annee == anneeMAX){
+			//si on est au début de la liste d'honneur on ajoute le premier élément
+			if (listHonneur -> NbreElements == 0){
+				listHonneur -> premier = copierBenevole(ben);
+				benTMP = listHonneur -> premier;
+				listHonneur -> NbreElements ++;
+			}
+			else{
+				benTMP -> suivant = copierBenevole(ben);
+				benTMP = benTMP -> suivant;
+				listHonneur -> NbreElements ++;
+			}
+		}
+		ben = ben -> suivant;
+	}
+}
+
+Benevole* copierBenevole(Benevole * ben){
+	Benevole * nouveau = nouveauBen(ben -> nom, ben -> prenom, ben -> CIN, ben -> sexe, ben -> annee);
+	return nouveau;
+}
 	
+Tranche* maximum_ABR(Tranche* actuelle){
+	Tranche* tmp =actuelle;
+	while (tmp -> filsD != NULL) tmp = tmp -> filsD;
+	return tmp;
+}
+
 int main(int argc, char const *argv[])
 {
 	/* code */
