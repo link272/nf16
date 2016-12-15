@@ -67,7 +67,7 @@ void main(){
                 AfficherPercentBen(arbre);
                 break;
             case 11:
-                AfficherBestBenCLI(abre);
+                AfficherBestBenCLI(arbre);
                 break;
             case 12:
                 ViderArbre(arbre);
