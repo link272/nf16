@@ -21,7 +21,11 @@ int borneSuperieure(int annee){
  	return age;
 }
 
-
+void viderBuffer()
+{
+int c;
+	while ( (c = getchar()) != '\n' && c != EOF);
+}
 
 
 //2.1
@@ -205,7 +209,14 @@ int supprimerBen(Tranche ** racine , int CIN , int annee){
 	}
 
 	//Si la tranche n'existe pas on sort
-	if (trancheActuelle -> borneSup != borneSup) return 1;
+	if (trancheActuelle == NULL){
+		printf("Il n'y a pas de bénévoles nait cette année dans l'arbre...\n");
+		return 1;
+	} 
+	if (trancheActuelle -> borneSup != borneSup) {
+		printf("Il n'y a pas de bénévoles nait cette année dans l'arbre...\n");
+		return 1;
+	} 
 
 	Benevole* premier = trancheActuelle -> liste -> premier, *actuel = premier, *precedent = actuel;
 
@@ -228,6 +239,7 @@ int supprimerBen(Tranche ** racine , int CIN , int annee){
 	
 	if (a==0 && trancheActuelle -> liste -> NbreElements == 0){
 		a=a+supprimerTranche (racine,trancheActuelle -> borneSup);
+		printf("La tranche où était le bénévole étant vide nous l'avons supprimer.\n");
 	}
 	return a;
 }
@@ -266,7 +278,7 @@ int supprimerTranche (Tranche ** racine , int borneSup){
 	Tranche* actuelle=rechercherTranche(*racine, borneSup);
 
 	//si on ne l'a pas trouvée
-	if (actuelle == NULL) return 1;
+	if (actuelle == NULL) return 2;
 
 	if (suppressionListe(actuelle -> liste)==1) return 1;
 
@@ -278,18 +290,22 @@ int supprimerTranche (Tranche ** racine , int borneSup){
 Tranche* rechercherTranche(Tranche* racine, int borneSup){
 	if (racine == NULL) return NULL;
 
-	Tranche* actuelle=racine;
+	Tranche* actuelle=racine, *precedent=actuelle;
 
 	while (actuelle != NULL && actuelle -> borneSup != borneSup){
 		if (borneSup < actuelle -> borneSup ){
+			precedent = actuelle;
 			actuelle = actuelle -> filsG;
 		} 
 		else{
+			precedent = actuelle;
 			actuelle = actuelle -> filsD;
 		}
 	}
 
+
 	return actuelle;
+
 }
 
 int suppressionListe(ListBenevoles* liste){
@@ -309,14 +325,16 @@ int suppressionListe(ListBenevoles* liste){
 }
 
 int suppression(Tranche* actuelle, Tranche ** racine){
-	Tranche* pere = actuelle -> pere;
+	
 	//on est obligé de dédoubler pour ne pas avoir de problème avec les mises à jour de racine...
 	//si ce n'est pas la racine :
 	if (actuelle!=*racine){
+		Tranche* pere = actuelle -> pere;
+
 		//Feuille
 		if (actuelle -> filsG == NULL && actuelle -> filsD == NULL){
-			if (actuelle == pere -> filsG) pere->filsG =NULL;
-			else pere -> filsD == NULL;
+			if (actuelle == pere -> filsG) pere->filsG = NULL;
+			else pere -> filsD = NULL;
 			//pour éviter les erreurs de segmentations malgré la free mémoire
 			actuelle=NULL;
 			free(actuelle);
@@ -422,6 +440,8 @@ Tranche* minimum_ABR(Tranche* actuelle){
 ListBenevoles * BenDhonneur(Tranche * racine){
 	Tranche * trancheMax = maximum_ABR(racine);
 
+	if (trancheMax == NULL) return NULL;
+
 	int anneeMAX;
 	//on ne peut avoir de tranche vide (voir fonctions précédentes)
 	Benevole * ben = trancheMax -> liste -> premier;
@@ -452,6 +472,8 @@ ListBenevoles * BenDhonneur(Tranche * racine){
 		}
 		ben = ben -> suivant;
 	}
+
+	return listHonneur;
 }
 
 Benevole* copierBenevole(Benevole * ben){
@@ -515,7 +537,7 @@ void afficherTranche (Tranche * racine , int borneSup){
 		}
 	}
 	else{
-		printf("Aucune tranche ne correspond\n");
+		printf("Aucune tranche ne correspond, elle a pu être supprimée si elle était vide.\n");
 	}
 	
 }
@@ -524,13 +546,18 @@ void afficherBenevole (Benevole* ben){
 	printf("nom : %s, prenom : %s, sexe : %c, CIN : %d, age : %d\n",ben->nom,ben->prenom,ben->sexe,ben->CIN,anneeActuelle ()-ben->annee);
 }
 
-void afficherArbre (Tranche * racine){
+void afficherArbre (Tranche * racine,int niveau){
 	//récursif
-	if (racine == NULL) return;
+	if (racine == NULL && niveau == 0) {
+		printf("Il n'y a aucune tranche dans l'ABR.\n");
+		return;
+	}
+	if (racine == NULL)
+		return;
 
-	afficherArbre(racine->filsG);
-	printf("Borne : %d\n", racine -> borneSup );
-	afficherArbre(racine -> filsD);
+	afficherArbre(racine->filsG,niveau+1);
+	printf("Tranche : %d\n", racine -> borneSup );
+	afficherArbre(racine -> filsD,niveau+1);
 }
 
 
@@ -546,29 +573,372 @@ void testing(Tranche *** racineReal){
 	insererBen(racine,ben1);
 }
 
+
+
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//CLI
+
+int afficherMenu(){
+
+    int choix = 0;
+
+    printf("\n---Menu---\n\n");
+
+    printf("1.  Détruire et Initialiser un arbre\n");
+    printf("2.  Ajouter une Tranche\n");
+    printf("3.  Ajouter un bénévole dans une tranche d’âge\n");
+    printf("4.  Afficher les tranches d’âge d’un ABR\n");
+    printf("5.  Afficher les bénévoles d’une tranche d’âge\n");
+    printf("6.  Supprimer un bénévole\n");
+    printf("7.  Supprimer une tranche\n");
+    printf("8.  Afficher les bénévoles d’honneur\n");
+    printf("9.  Afficher le nombre total de bénévoles\n");
+    printf("10. Actualiser l’ABR\n");
+    printf("11. Afficher le pourcentage de bénévoles d’une tranche d’âge\n");
+    printf("12. Quitter\n\n");
+    printf("Exprimer votre choix: ");
+    scanf("%d", &choix);
+    viderBuffer();
+    
+    return choix;
+}
+
+void initialiserCLI(Tranche ** racine){
+	if (*racine == NULL){
+		printf("L'arbre est déjà vide...\n");
+		return;
+	}
+
+	viderArbre(racine);
+    printf("Tous les espaces mémoires ont bien été supprimées\n");
+
+    printf("L'arbre a été réinitialisé.\n");
+}
+
+
+
+void ajouterTrancheCLI(){
+	printf("#################################################################\n");
+	printf("Désolé, cette fonctionnalité n'est pas supportée\n");
+	printf("L'ajout de tranche se fait uniquement lors de l'ajout d'un membre\n");
+	printf("#################################################################\n");
+	printf("\n");
+}
+
+void ajouterBenCLI(Tranche ** racine){
+	char sexe;
+	char nom[TAILLENOM];
+	char prenom[TAILLEPRENOM];
+	int CIN;
+	int annee;
+
+	printf("\n Quel est le nom du nouveau membre ?\n");
+	scanf("%s",nom);
+	viderBuffer();
+
+	printf("\n Quel est le prénom du nouveau membre ?\n");
+	scanf("%s",prenom);
+	viderBuffer();
+	
+	printf("\n Quel est son sexe ?\n");
+	scanf("%c",&sexe);
+	viderBuffer();
+
+	printf("\n Quel est son numéro de CIN ?\n");
+	scanf("%d",&CIN);
+	viderBuffer();
+
+	printf("\n Quelle est son année de naissance ?\n");
+	scanf("%d",&annee);
+	viderBuffer();
+
+	Benevole * newBen=nouveauBen(nom, prenom, CIN, sexe, annee);
+
+	newBen=insererBen(racine,newBen);
+	if (newBen != NULL)
+		printf("L'insertion c'est bien passée\n");
+	else 
+		printf("L'insertion en s'est pas bien passée.\n");
+	
+}
+
+void afficherTrancheCLI(Tranche ** racine){
+	if (*racine == NULL){
+		printf("Il n'y a aucune tranche d'âge dans l'arbre.\n");
+		return;
+	}
+	printf("\n \n Voici les tranches d'âges qui sont présentes dans notre ABR :\n");
+	int niveau = 0;
+	afficherArbre(*racine,niveau);
+}
+
+
+
+void afficherBenCLI(Tranche ** racine){
+	int borneSup;
+
+	printf("Quelle tranche d'âge souhaitez-vous afficher ?\n");
+
+	scanf("%d",&borneSup);
+	viderBuffer();
+
+	afficherTranche(*racine, borneSup);
+}
+
+void supprimerBenCLI(Tranche ** racine){
+	if (*racine != NULL){
+		int CIN;
+		int annee;
+
+		printf("Nous allons chercher à supprimer un membre.\n");
+
+		printf("\n Quel est son numéro de CIN ?\n");
+		scanf("%d",&CIN);
+		viderBuffer();
+
+		printf("\n Quelle est son année de naissance ?\n");
+		scanf("%d",&annee);
+		viderBuffer();
+
+		int a=supprimerBen(racine ,  CIN ,  annee);
+		if (a==0) printf("La suppression c'est bien passée.\n");
+		else printf("La suppression ne s'est pas bien passée.\n");
+	}
+	else
+	{
+		printf("Il n'y a aucun bénévole dans l'arbre... On ne peut pas en supprimer.\n");
+	}
+}
+
+
+void supprimerTrancheCLI(Tranche ** racine){
+	if (*racine == NULL){
+		printf("Désolé, il n'y a aucune tranche dans l'arbre...\n");
+	}
+	else{
+		afficherTrancheCLI(racine);
+		printf("Quelle tranche d'âge souhaitez-vous supprimer ?\n");
+		
+		int borneSup;
+		scanf("%d",&borneSup);
+		viderBuffer();
+
+
+		int a = supprimerTranche (racine , borneSup);
+
+		if (a==0){
+			printf("La suppression c'est bien passée, tous les espaces mémoires concernés ont été vidés.\n");
+			printf("Dorénavant :\n");
+			afficherTrancheCLI(racine);
+		}
+		else if (a == 2)
+			printf("Cette tranche n'existe pas dans l'arbre...\n");
+		else
+			printf("Il y a eu une erreure.\n");
+	}
+	
+
+
+}
+
+
+void AfficherBestBenCLI(Tranche ** racine){
+	ListBenevoles *tmp= BenDhonneur(*racine);
+
+	if (tmp == NULL){
+		printf("Il n'y a aucun bénévole d'honneur...\n");
+		return;
+	}
+
+	Benevole* actuel = tmp -> premier;
+
+
+
+	if (actuel == NULL){
+		free(tmp);
+		printf("Désolé, il n'y a pas de bénévoles d'honneur...\n");
+		return;
+	}
+
+	printf("Voici la liste des bénévoles d'honneur.\n");
+	while (actuel != NULL){
+		afficherBenevole(actuel);
+		actuel = actuel -> suivant;
+	}
+
+	suppressionListe(tmp);
+}
+
+
+void AfficherNbBenCLI(Tranche ** racine){
+	printf("Il y a %d bénévoles dans l'arbre.\n",totalBen(*racine));
+}
+
+void AfficherPercentBen(Tranche ** racine){
+	if (*racine == NULL){
+		printf("Désolé, il n'y a aucune tranche dans l'arbre...\n");
+	}
+	else{
+		afficherTrancheCLI(racine);
+		printf("De quelle tranche d'âge souhaitez-vous afficher le pourcentage?\n");
+		
+		int borneSup;
+		scanf("%d",&borneSup);
+		viderBuffer();
+
+		float pourcentage = pourcentageTranche(*racine, borneSup);
+
+		printf("La tranche d'âge %d représente %f %% des bénévoles. \n",borneSup,pourcentage);
+	}
+}
+
+void viderArbre(Tranche ** racine){
+	//on commance par supprimer les fils
+	viderInterieur(*racine);
+	*racine=NULL;	
+}
+
+void viderInterieur(Tranche * racine){
+	if (racine -> filsG != NULL)
+		viderInterieur(racine-> filsG);
+	if (racine -> filsD != NULL)
+		viderInterieur(racine-> filsD);
+
+	//on supprime l'élément en lui-même
+	if (racine->pere != NULL){
+		if (racine == racine->pere->filsG)
+			racine -> pere -> filsG = NULL;
+		else
+			racine -> pere -> filsD = NULL;
+	}
+	//on supprime les bénévoles :
+	suppressionListe(racine -> liste);
+
+	//On libère l'espace mémoire.
+	free(racine);
+}
+
+int quitterSLI(Tranche ** racine){
+
+	
+    printf("Tous les espaces mémoires ont bien été supprimées\n");
+    if (*racine == NULL) return 0;
+
+    viderArbre(racine);
+    return 0;
+}
+
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
+//Main
 int main(int argc, char const *argv[])
-{
+{   
+	int state = 1;
+
 	Tranche ** racine;
-	*racine = NULL;
+    *racine = NULL;
+    testing(&racine);
 
+	printf("##########################################################\n");
+   	printf("Un arbre de test a été chargé.\n");
+    printf("##########################################################\n");
 
-	testing(&racine);
 	
-	afficherArbre (*racine);
-	afficherTranche(*racine,20);
+    while(state){
+        switch(afficherMenu()){
+            case 1:
+            	initialiserCLI(racine);
+                break;
+            case 2:
+            	ajouterTrancheCLI();
+                break;
+            case 3:
+                 ajouterBenCLI(racine);
+                break;
+            case 4:
+                 afficherTrancheCLI(racine);
+                break;
+            case 5:
+                 afficherBenCLI(racine);
+                break;
+            case 6:
+                 supprimerBenCLI(racine);
+                break;
+            case 7:
+                 supprimerTrancheCLI(racine);
+                break;
+            case 8:
+                AfficherBestBenCLI(racine);
+                break;
+            case 9:
+            	AfficherNbBenCLI(racine);
+            	break;
+            case 10:
+                // ActualiserArbre(arbre);
+                break;
+            case 11:
+                AfficherPercentBen(racine);
+                break;
+            case 12:
+            	state = quitterSLI(racine);
+            	break;
+            default: 
+            	break;
+        }
+    }
 
-	
-	printf("SUPPPRESSION\n");
-	//printf("%d\n",supprimerTranche(racine ,20));
-	
-	printf("%d\n",supprimerBen(racine , 202 , 1998));
-	afficherArbre (*racine);
 
-	//printf("%d\n",(*racine)->borneSup);
-	//afficherTranche(*racine,20);
-	/*printf("%d\n",totalBen(*racine));
-	
-	*/
 
-	return 0;
+
+
+
+    /*
+    afficherArbre (*racine);
+    afficherTranche(*racine,20);
+
+    
+    printf("SUPPPRESSION\n");
+    //printf("%d\n",supprimerTranche(racine ,20));
+    
+    printf("%d\n",supprimerBen(racine , 202 , 1998));
+    afficherArbre (*racine);
+
+    //printf("%d\n",(*racine)->borneSup);
+    //afficherTranche(*racine,20);
+    /*printf("%d\n",totalBen(*racine));
+    
+    */
+
+    return 0;
 }
