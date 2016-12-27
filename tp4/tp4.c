@@ -128,7 +128,7 @@ Benevole * insererBen(Tranche ** racine , Benevole * benevole){
 	}
 
 	//si il faut ajouter au début de la liste
-	if (actuel -> annee < benevole -> annee){
+	if (actuel -> annee <= benevole -> annee){
 		benevole -> suivant = trancheActuelle -> liste -> premier;
 		trancheActuelle -> liste -> premier = benevole;
 		trancheActuelle -> liste -> NbreElements ++;
@@ -613,13 +613,15 @@ void afficherArbre (Tranche * racine,int niveau){
 void testing(Tranche *** racineReal){
 	Tranche ** racine=*racineReal;
 	
-	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1978);
-	Benevole * ben2=nouveauBen("Timothée","Chehab", 201 , 'M', 1983);
-	Benevole * ben3=nouveauBen("Julie","Chehab", 202 , 'F', 1998);
+	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1980);
+	Benevole * ben2=nouveauBen("Timothée","Chehab", 201 , 'M', 1970);
+	Benevole * ben3=nouveauBen("Julie","Chehab", 202 , 'F', 1960);
+	Benevole * ben4=nouveauBen("Muriel","Chehab", 202 , 'F', 1975);
 
+	insererBen(racine,ben1);
 	insererBen(racine,ben2);
 	insererBen(racine,ben3);
-	insererBen(racine,ben1);
+	insererBen(racine,ben4);
 }
 
 
@@ -846,7 +848,7 @@ void ActualiserArbreCLI(Tranche ** racine){
 
 	printf("Début de l'acutualisation...\n");
 
-	
+
 	int nbActu = actualiserABR(racine);
 
 	printf("%d Membres ont changé de classe d'âge.\n",nbActu);
@@ -946,8 +948,8 @@ int main(int argc, char const *argv[])
 
 	Tranche ** racine;
     *racine = NULL;
-    testing(&racine);
-
+    
+	testing(&racine);
 	printf("##########################################################\n");
    	printf("Un arbre de test a été chargé.\n");
     printf("##########################################################\n");
@@ -995,28 +997,6 @@ int main(int argc, char const *argv[])
             	break;
         }
     }
-
-
-
-
-
-
-    /*
-    afficherArbre (*racine);
-    afficherTranche(*racine,20);
-
-    
-    printf("SUPPPRESSION\n");
-    //printf("%d\n",supprimerTranche(racine ,20));
-    
-    printf("%d\n",supprimerBen(racine , 202 , 1998));
-    afficherArbre (*racine);
-
-    //printf("%d\n",(*racine)->borneSup);
-    //afficherTranche(*racine,20);
-    /*printf("%d\n",totalBen(*racine));
-    
-    */
 
     return 0;
 }
