@@ -2,11 +2,15 @@
 
 //Divers
 int anneeActuelle (){
-	time_t secondes;
-	struct tm instant;
-	time(&secondes);
-	instant = * localtime(&secondes);
-	return instant.tm_year + 1900;
+	if (year == 0){
+		time_t secondes;
+		struct tm instant;
+		time(&secondes);
+		instant = * localtime(&secondes);
+		return instant.tm_year + 1900;
+	}
+	else
+		return year;
 }
 
 // Déterminer la borne sup de la tranche d'âge d'appartenance
@@ -488,13 +492,58 @@ Tranche* maximum_ABR(Tranche* actuelle){
 }
 
 //2.8
-int actualiser(Tranche * racine){
+int actualiserABR(Tranche ** racine){
 	int nbActu=0;
 
-	int quelleBorne;
 
+	nbActu=actualisationABR(*racine,racine);
 
 	return nbActu;
+}
+
+int actualisationABR(Tranche * racine, Tranche ** ABR){
+	if (racine == NULL) return 0;
+
+	int nbActu = 0;
+
+	Benevole* ben = racine -> liste -> premier;
+	Benevole* tmp,*suivant,*precedent = ben;
+	int borneSup = racine -> borneSup;
+
+	while (ben != NULL){
+		if ( borneSuperieure(ben->annee) != borneSup ){
+			//si on n'est plus dans la bonne tranche d'âge...
+			tmp = copierBenevole(ben);
+			suivant = ben -> suivant;
+			
+			suppressionBen(ben,precedent,racine);
+			nbActu++;
+			insererBen(ABR,tmp);
+			ben=suivant;
+		}
+		else{
+			precedent = ben; 
+			ben = ben -> suivant;
+		}
+
+	}
+
+	return nbActu + actualisationABR( racine->filsD,ABR ) + actualisationABR( racine->filsG,ABR );
+
+}
+
+int verificationVide(Tranche * racine, Tranche ** ABR){
+	if (racine == NULL) return 0;
+	int modif = 0;
+
+	if (racine -> liste -> premier == NULL){
+		//Si on a un noud avec une liste vide, on supprime le noeud.
+		modif = 1;
+		free(racine-> liste);
+		suppression(racine,ABR);
+	}
+
+	return modif + verificationVide(racine -> filsG,ABR) + verificationVide(racine -> filsD,ABR);
 }
 
 
@@ -752,8 +801,6 @@ void supprimerTrancheCLI(Tranche ** racine){
 			printf("Il y a eu une erreure.\n");
 	}
 	
-
-
 }
 
 
@@ -789,7 +836,38 @@ void AfficherNbBenCLI(Tranche ** racine){
 	printf("Il y a %d bénévoles dans l'arbre.\n",totalBen(*racine));
 }
 
-void AfficherPercentBen(Tranche ** racine){
+void ActualiserArbreCLI(Tranche ** racine){
+
+	printf("Dans le programme nous sommes en %d \n",anneeActuelle());
+	printf("En quelle année souhaitez-vous déplacer le programme ?\n");
+	scanf("%d",&year);
+	viderBuffer();
+	printf("Le programme a été déplacé en %d \n",anneeActuelle());
+
+	printf("Début de l'acutualisation...\n");
+
+	
+	int nbActu = actualiserABR(racine);
+
+	printf("%d Membres ont changé de classe d'âge.\n",nbActu);
+	printf("\n Il faut maintenant vérifier qu'il n'y a pas de classe d'âge vide...\n");
+
+	//Cf printf
+	int modification = 1, supprimee=0;
+	Tranche * actuelle = *racine;
+
+
+	while (modification != 0){
+		modification = verificationVide(*racine,racine);
+		supprimee = supprimee + modification;		
+	}
+
+	printf("Tout c'est bien passé, %d classe(s) d'âges vides ont été supprimées.\n",supprimee);
+}
+
+
+
+void AfficherPercentBenCLI(Tranche ** racine){
 	if (*racine == NULL){
 		printf("Désolé, il n'y a aucune tranche dans l'arbre...\n");
 	}
@@ -833,7 +911,7 @@ void viderInterieur(Tranche * racine){
 	free(racine);
 }
 
-int quitterSLI(Tranche ** racine){
+int quitterCLI(Tranche ** racine){
 
 	
     printf("Tous les espaces mémoires ont bien été supprimées\n");
@@ -874,7 +952,7 @@ int main(int argc, char const *argv[])
    	printf("Un arbre de test a été chargé.\n");
     printf("##########################################################\n");
 
-	
+
     while(state){
         switch(afficherMenu()){
             case 1:
@@ -905,13 +983,13 @@ int main(int argc, char const *argv[])
             	AfficherNbBenCLI(racine);
             	break;
             case 10:
-                // ActualiserArbre(arbre);
+                ActualiserArbreCLI(racine);
                 break;
             case 11:
-                AfficherPercentBen(racine);
+                AfficherPercentBenCLI(racine);
                 break;
             case 12:
-            	state = quitterSLI(racine);
+            	state = quitterCLI(racine);
             	break;
             default: 
             	break;
