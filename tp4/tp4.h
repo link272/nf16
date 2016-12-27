@@ -38,6 +38,7 @@ struct Tranche{
 
 //Détermine l'année actuelle
 int anneeActuelle ();
+extern int 	year = 0;
 
 // Déterminer la borne sup de la tranche d'âge d'appartenance
 int borneSuperieure(int annee);
@@ -79,8 +80,9 @@ Benevole* copierBenevole(Benevole * ben);
 
 
 //2.8 
-
-//A FAIRE
+int actualiserABR(Tranche ** racine);
+int actualisationABR(Tranche * racine,Tranche **ABR);
+int verificationVide(Tranche * racine, Tranche ** ABR);
 
 //2.9
 int totalBenTranche (Tranche * racine , int borneSup);
@@ -98,11 +100,6 @@ void afficherArbre (Tranche * racine, int niveau);
 void testing(Tranche *** racine);
 
 
-
-//suppresion tranche pas op 
-
-
-
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //Partie CLI
@@ -115,7 +112,8 @@ void supprimerBenCLI(Tranche ** racine);
 void supprimerTrancheCLI(Tranche ** racine);
 void AfficherBestBenCLI(Tranche ** racine);
 void AfficherNbBenCLI(Tranche ** racine);
-void AfficherPercentBen(Tranche ** racine);
+void ActualiserArbreCLI(Tranche ** racine);
+void AfficherPercentBenCLI(Tranche ** racine);
 void viderArbre(Tranche ** racine);
 void viderInterieur(Tranche * racine);
-int quitterSLI(Tranche ** racine);
+int quitterCLI(Tranche ** racine);
