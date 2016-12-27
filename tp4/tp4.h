@@ -7,15 +7,16 @@
 #define TAILLENOM 35
 #define TAILLEPRENOM 35
 
+typedef struct Benevole Benevole;
 
-typedef struct Benevole {
+struct Benevole {
 	char nom[TAILLENOM];
 	char prenom[TAILLEPRENOM];
 	char sexe;
 	int CIN;
 	int annee;
 	struct Benevole* suivant;
-} Benevole;
+};
 
 typedef struct ListBenevoles{
 	Benevole* premier;
@@ -41,6 +42,7 @@ int anneeActuelle ();
 // Déterminer la borne sup de la tranche d'âge d'appartenance
 int borneSuperieure(int annee);
 
+void viderBuffer();
 
 
 //2.1
@@ -78,7 +80,7 @@ Benevole* copierBenevole(Benevole * ben);
 
 //2.8 
 
-
+//A FAIRE
 
 //2.9
 int totalBenTranche (Tranche * racine , int borneSup);
@@ -90,11 +92,30 @@ void afficherTranche (Tranche * racine , int borneSup);
 void afficherBenevole (Benevole* ben);
 
 //2.11
-void afficherArbre (Tranche * racine);
+void afficherArbre (Tranche * racine, int niveau);
 
 
 void testing(Tranche *** racine);
 
 
 
-//penser à supprimer la liste des benevoles d'honneur !
+//suppresion tranche pas op 
+
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//Partie CLI
+void initialiserCLI(Tranche ** racine);
+void ajouterTrancheCLI();
+void ajouterBenCLI(Tranche ** racine);
+void afficherTrancheCLI(Tranche ** racine);
+void afficherBenCLI(Tranche ** racine);
+void supprimerBenCLI(Tranche ** racine);
+void supprimerTrancheCLI(Tranche ** racine);
+void AfficherBestBenCLI(Tranche ** racine);
+void AfficherNbBenCLI(Tranche ** racine);
+void AfficherPercentBen(Tranche ** racine);
+void viderArbre(Tranche ** racine);
+void viderInterieur(Tranche * racine);
+int quitterSLI(Tranche ** racine);
