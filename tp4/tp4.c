@@ -742,7 +742,7 @@ void afficherTrancheCLI(Tranche ** racine){
 
 void afficherBenCLI(Tranche ** racine){
 	int borneSup;
-
+	afficherTrancheCLI(racine);
 	printf("Quelle tranche d'âge souhaitez-vous afficher ?\n");
 
 	scanf("%d",&borneSup);
@@ -755,7 +755,7 @@ void supprimerBenCLI(Tranche ** racine){
 	if (*racine != NULL){
 		int CIN;
 		int annee;
-
+		
 		printf("Nous allons chercher à supprimer un membre.\n");
 
 		printf("\n Quel est son numéro de CIN ?\n");
@@ -997,6 +997,28 @@ int main(int argc, char const *argv[])
             	break;
         }
     }
+
+
+
+
+
+
+    /*
+    afficherArbre (*racine);
+    afficherTranche(*racine,20);
+
+    
+    printf("SUPPPRESSION\n");
+    //printf("%d\n",supprimerTranche(racine ,20));
+    
+    printf("%d\n",supprimerBen(racine , 202 , 1998));
+    afficherArbre (*racine);
+
+    //printf("%d\n",(*racine)->borneSup);
+    //afficherTranche(*racine,20);
+    /*printf("%d\n",totalBen(*racine));
+    
+    */
 
     return 0;
 }
