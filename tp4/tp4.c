@@ -619,16 +619,6 @@ void afficherArbre (Tranche * racine,int niveau){
 void testing(Tranche *** racineReal){
 	Tranche ** racine=*racineReal;
 	
-	/*Benevole * ben1=nouveauBen("a","a", 200123 , 'M', 1978);
-	Benevole * ben2=nouveauBen("b","b", 204564561 , 'M', 1992);
-	Benevole * ben3=nouveauBen("c","c", 202 , 'F', 1995);
-	Benevole * ben4=nouveauBen("Muriel","Chehab", 202 , 'F', 1975);
-
-	insererBen(racine,ben1);
-	insererBen(racine,ben2);
-	insererBen(racine,ben3);
-	insererBen(racine,ben4);
-	*/
 
 	Benevole * ben=nouveauBen("a0","a0", 0 , 'F', 1978);
 	insererBen(racine,ben); 
