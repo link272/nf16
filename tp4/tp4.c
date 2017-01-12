@@ -228,7 +228,7 @@ int supprimerBen(Tranche ** racine , int CIN , int annee){
 	if (premier == NULL) return 1;
 
 	while (actuel != NULL){
-		if (actuel -> CIN == CIN) break; //on sort du while
+		if (actuel -> CIN == CIN && actuel -> annee == annee) break; //on sort du while
 		precedent = actuel;
 		actuel = actuel -> suivant;
 	}
@@ -435,8 +435,11 @@ Tranche * successeur(Tranche* actuelle){
 
 Tranche* minimum_ABR(Tranche* actuelle){
 	Tranche* tmp =actuelle;
-	while (tmp -> filsG != NULL) tmp = tmp -> filsG;
-	return tmp;
+	if (tmp != NULL){
+		while (tmp -> filsG != NULL) tmp = tmp -> filsG;
+		return tmp;
+	}
+	return NULL;	
 }
 
 
@@ -486,9 +489,12 @@ Benevole* copierBenevole(Benevole * ben){
 }
 	
 Tranche* maximum_ABR(Tranche* actuelle){
-	Tranche* tmp =actuelle;
-	while (tmp -> filsD != NULL) tmp = tmp -> filsD;
-	return tmp;
+	Tranche* tmp = actuelle;
+	if (tmp != NULL){
+		while (tmp -> filsD != NULL) tmp = tmp -> filsD;
+		return tmp;
+	}
+	return NULL;
 }
 
 //2.8
@@ -613,15 +619,77 @@ void afficherArbre (Tranche * racine,int niveau){
 void testing(Tranche *** racineReal){
 	Tranche ** racine=*racineReal;
 	
-	Benevole * ben1=nouveauBen("Florent","Chehab", 200 , 'M', 1980);
-	Benevole * ben2=nouveauBen("Timothée","Chehab", 201 , 'M', 1970);
-	Benevole * ben3=nouveauBen("Julie","Chehab", 202 , 'F', 1960);
+	/*Benevole * ben1=nouveauBen("a","a", 200123 , 'M', 1978);
+	Benevole * ben2=nouveauBen("b","b", 204564561 , 'M', 1992);
+	Benevole * ben3=nouveauBen("c","c", 202 , 'F', 1995);
 	Benevole * ben4=nouveauBen("Muriel","Chehab", 202 , 'F', 1975);
 
 	insererBen(racine,ben1);
 	insererBen(racine,ben2);
 	insererBen(racine,ben3);
 	insererBen(racine,ben4);
+	*/
+
+	Benevole * ben=nouveauBen("a0","a0", 0 , 'F', 1978);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a1","a1", 1 , 'F', 1992);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a2","a2", 2 , 'F', 1995);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a3","a3", 3 , 'F', 1991);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a4","a4", 4 , 'F', 1982);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a5","a5", 5 , 'F', 1953);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a6","a6", 6 , 'F', 1957);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a7","a7", 7 , 'F', 1960);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a8","a8", 8 , 'F', 1959);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a9","a9", 9 , 'F', 1978);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a10","a10", 10 , 'F', 1963);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a11","a11", 11 , 'F', 1999);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a12","a12", 12 , 'F', 1947);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a13","a13", 13 , 'F', 1982);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a14","a14", 14 , 'F', 1984);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a15","a15", 15 , 'F', 1988);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a16","a16", 16 , 'F', 1950);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a17","a17", 17 , 'F', 1989);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a18","a18", 18 , 'F', 1996);
+	insererBen(racine,ben); 
+
+	ben=nouveauBen("a19","a19", 19 , 'F', 1949);
+	insererBen(racine,ben); 
+
 }
 
 
@@ -768,7 +836,7 @@ void supprimerBenCLI(Tranche ** racine){
 
 		int a=supprimerBen(racine ,  CIN ,  annee);
 		if (a==0) printf("La suppression c'est bien passée.\n");
-		else printf("La suppression ne s'est pas bien passée.\n");
+		else printf("La suppression ne s'est pas bien passée. \n Il se peut qu'il n'y est pas de bénévole correspondant dans l'arbre.\n");
 	}
 	else
 	{
@@ -923,102 +991,3 @@ int quitterCLI(Tranche ** racine){
     return 0;
 }
 
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////
-//Main
-int main(int argc, char const *argv[])
-{   
-	int state = 1;
-
-	Tranche ** racine;
-    *racine = NULL;
-    
-	testing(&racine);
-	printf("##########################################################\n");
-   	printf("Un arbre de test a été chargé.\n");
-    printf("##########################################################\n");
-
-
-    while(state){
-        switch(afficherMenu()){
-            case 1:
-            	initialiserCLI(racine);
-                break;
-            case 2:
-            	ajouterTrancheCLI();
-                break;
-            case 3:
-                 ajouterBenCLI(racine);
-                break;
-            case 4:
-                 afficherTrancheCLI(racine);
-                break;
-            case 5:
-                 afficherBenCLI(racine);
-                break;
-            case 6:
-                 supprimerBenCLI(racine);
-                break;
-            case 7:
-                 supprimerTrancheCLI(racine);
-                break;
-            case 8:
-                AfficherBestBenCLI(racine);
-                break;
-            case 9:
-            	AfficherNbBenCLI(racine);
-            	break;
-            case 10:
-                ActualiserArbreCLI(racine);
-                break;
-            case 11:
-                AfficherPercentBenCLI(racine);
-                break;
-            case 12:
-            	state = quitterCLI(racine);
-            	break;
-            default: 
-            	break;
-        }
-    }
-
-
-
-
-
-
-    /*
-    afficherArbre (*racine);
-    afficherTranche(*racine,20);
-
-    
-    printf("SUPPPRESSION\n");
-    //printf("%d\n",supprimerTranche(racine ,20));
-    
-    printf("%d\n",supprimerBen(racine , 202 , 1998));
-    afficherArbre (*racine);
-
-    //printf("%d\n",(*racine)->borneSup);
-    //afficherTranche(*racine,20);
-    /*printf("%d\n",totalBen(*racine));
-    
-    */
-
-    return 0;
-}
